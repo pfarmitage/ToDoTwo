@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
+import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 
+// Define the Task interface
 interface Task {
   id: string;
   title: string;
@@ -31,6 +34,14 @@ function App() {
     list: 'today',
   };
 
+  const handleTaskSubmit = (taskData: Task) => {
+    setTasks([...tasks, taskData]);
+  };
+
+  const handleTaskCompletion = (taskId: string) => {
+    setTasks(tasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task));
+  };
+
   return (
     <div>
       <AppBar position="static">
@@ -41,8 +52,20 @@ function App() {
         </Toolbar>
       </AppBar>
       <Container maxWidth="sm">
-        {/* Task component with the dummy task */}
-        <Task task={dummyTask} onCompletionChange={(taskId, completed) => {}} />
+        <Box marginTop={2}>
+          <TaskForm onSubmit={handleTaskSubmit} />
+        </Box>
+        <Box marginTop={4}>
+          {tasks.map(task => (
+            <Task
+              key={task.id}
+              task={task}
+              onTaskCompletion={handleTaskCompletion}
+            />
+          ))}
+          {/* Task component with the dummy task */}
+          <Task task={dummyTask} onCompletionChange={(taskId, completed) => {}} />
+        </Box>
       </Container>
     </div>
   );
