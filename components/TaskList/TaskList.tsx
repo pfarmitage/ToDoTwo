@@ -1,37 +1,48 @@
 import React from 'react';
-import { List, ListItem } from '@mui/material';
+import { TaskType } from '../../App';
 import Task from '../Task/Task';
-import { TaskType } from '../../types';
-
 
 interface TaskListProps {
   tasks: TaskType[];
+  selectedList: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';
   onCompletionChange: (taskId: string, isCompleted: boolean) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onCompletionChange }) => {
-  const sortedTasks = tasks.sort((taskA, taskB) => {
-    const priorityOrder = ['urgent', 'high', 'normal'];
+const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange }) => {
+  const filteredTasks = tasks.filter(task => task.list === selectedList);
 
-    const priorityDiff = priorityOrder.indexOf(taskA.priority) - priorityOrder.indexOf(taskB.priority);
-    if (priorityDiff !== 0) {
-      return priorityDiff;
+  const sortedTasks = filteredTasks.sort((a, b) => {
+    const priorityOrder: Record<string, number> = {
+      urgent: 3,
+      high: 2,
+      normal: 1,
+    };
+
+    if (a.priority !== b.priority) {
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
     }
 
-    const dueDateA = taskA.dueDate || '9999-12-31';
-    const dueDateB = taskB.dueDate || '9999-12-31';
+    if (a.dueDate && b.dueDate) {
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    }
 
-    return dueDateA.localeCompare(dueDateB);
+    if (a.dueDate) {
+      return -1;
+    }
+
+    if (b.dueDate) {
+      return 1;
+    }
+
+    return 0;
   });
 
   return (
-    <List>
+    <>
       {sortedTasks.map(task => (
-        <ListItem key={task.id}>
-          <Task task={task} onCompletionChange={onCompletionChange} />
-        </ListItem>
+        <Task key={task.id} task={task} onCompletionChange={onCompletionChange} />
       ))}
-    </List>
+    </>
   );
 };
 

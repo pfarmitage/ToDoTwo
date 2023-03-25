@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
 import { TaskType } from './types';
+import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 
 
 
@@ -30,7 +31,7 @@ function App() {
     priority: 'high',
     tags: ['test', 'demo'],
     completed: false,
-    list: 'today',
+    list: 'next week',
   };
   
   const dummyTask3: TaskType = {
@@ -42,7 +43,7 @@ function App() {
     priority: 'urgent',
     tags: ['test', 'demo'],
     completed: false,
-    list: 'today',
+    list: 'tomorrow',
   };
 
   const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3]);
@@ -75,8 +76,23 @@ function App() {
         <Box marginTop={2}>
           <TaskForm onSubmit={handleTaskSubmit} />
         </Box>
+        <Box marginTop={4} marginBottom={2}>
+          <Grid container spacing={2}>
+            {['today', 'tomorrow', 'next week', 'next month', 'someday'].map(
+              (list) => (
+                <Grid item key={list}>
+                  <TaskFilterButton
+                    label={list}
+                    selected={selectedList === list}
+                    onSelect={(label) => setSelectedList(label as any)}
+                  />
+                </Grid>
+              ),
+            )}
+          </Grid>
+        </Box>
         <Box marginTop={4}>
-        <TaskList tasks={tasks} onCompletionChange={handleCompletionChange} />
+          <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} />
         </Box>
       </Container>
     </div>
