@@ -3,26 +3,14 @@ import { Container, AppBar, Toolbar, Typography, Box } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
+import TaskList from './components/TaskList/TaskList';
+import { TaskType } from './types';
 
-// Define the Task interface
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string | null;
-  sizing: number;
-  priority: 'normal' | 'high' | 'urgent';
-  tags: string[];
-  completed: boolean;
-  list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';
-}
+
 
 function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedList, setSelectedList] = useState<'today' | 'tomorrow' | 'next week' | 'next month' | 'someday'>('today');
-
   // Dummy task for testing
-  const dummyTask: Task = {
+  const dummyTask: TaskType = {
     id: '1',
     title: 'Test Task',
     description: 'This is a test task',
@@ -33,8 +21,36 @@ function App() {
     completed: false,
     list: 'today',
   };
+  const dummyTask2: TaskType = {
+    id: '2',
+    title: 'Test Task 2',
+    description: 'This is a test task with high priority',
+    dueDate: '2023-03-25',
+    sizing: 5,
+    priority: 'high',
+    tags: ['test', 'demo'],
+    completed: false,
+    list: 'today',
+  };
+  
+  const dummyTask3: TaskType = {
+    id: '3',
+    title: 'Test Task 3',
+    description: 'This is a test task with urgent priority',
+    dueDate: '2023-03-24',
+    sizing: 1,
+    priority: 'urgent',
+    tags: ['test', 'demo'],
+    completed: false,
+    list: 'today',
+  };
 
-  const handleTaskSubmit = (taskData: Task) => {
+  const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3]);
+  const [selectedList, setSelectedList] = useState<'today' | 'tomorrow' | 'next week' | 'next month' | 'someday'>('today');
+
+  
+
+  const handleTaskSubmit = (taskData: TaskType) => {
     setTasks([...tasks, taskData]);
   };
 
@@ -60,15 +76,7 @@ function App() {
           <TaskForm onSubmit={handleTaskSubmit} />
         </Box>
         <Box marginTop={4}>
-          {tasks.map(task => (
-            <Task
-              key={task.id}
-              task={task}
-              onCompletionChange={handleCompletionChange}
-              />
-          ))}
-          {/* Task component with the dummy task */}
-          <Task task={dummyTask} onCompletionChange={handleCompletionChange} />
+        <TaskList tasks={tasks} onCompletionChange={handleCompletionChange} />
         </Box>
       </Container>
     </div>
