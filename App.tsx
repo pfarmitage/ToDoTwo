@@ -38,8 +38,12 @@ function App() {
     setTasks([...tasks, taskData]);
   };
 
-  const handleTaskCompletion = (taskId: string) => {
-    setTasks(tasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task));
+  const handleCompletionChange = (taskId: string, isCompleted: boolean) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, completed: isCompleted } : task,
+      ),
+    );
   };
 
   return (
@@ -47,7 +51,7 @@ function App() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div">
-            To-Do List App
+            To Do
           </Typography>
         </Toolbar>
       </AppBar>
@@ -60,11 +64,11 @@ function App() {
             <Task
               key={task.id}
               task={task}
-              onTaskCompletion={handleTaskCompletion}
-            />
+              onCompletionChange={handleCompletionChange}
+              />
           ))}
           {/* Task component with the dummy task */}
-          <Task task={dummyTask} onCompletionChange={(taskId, completed) => {}} />
+          <Task task={dummyTask} onCompletionChange={handleCompletionChange} />
         </Box>
       </Container>
     </div>

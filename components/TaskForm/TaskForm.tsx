@@ -59,6 +59,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="title"
             control={control}
+            defaultValue=""
             render={({ field }) => (
               <TextField {...field} label="Title" variant="outlined" fullWidth required />
             )}
@@ -68,6 +69,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="description"
             control={control}
+            defaultValue=""
             render={({ field }) => (
               <TextField {...field} label="Description" variant="outlined" fullWidth multiline rows={4} />
             )}
@@ -77,6 +79,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="dueDate"
             control={control}
+            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}
@@ -95,6 +98,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="sizing"
             control={control}
+            defaultValue=""
             render={({ field }) => (
               <TextField {...field} select label="Sizing" variant="outlined" fullWidth required>
                 {[1, 2, 3, 5, 8, 13, 21].map(value => (
@@ -110,6 +114,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="priority"
             control={control}
+            defaultValue=""
             render={({ field }) => (
               <TextField {...field} select label="Priority" variant="outlined" fullWidth required>
                 {['normal', 'high', 'urgent'].map(value => (
@@ -121,7 +126,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
             )}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Controller
             name="tags"
             control={control}
