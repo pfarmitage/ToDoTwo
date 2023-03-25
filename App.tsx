@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box, Grid } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
+import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
@@ -47,12 +48,14 @@ function App() {
   };
 
   const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3]);
-  const [selectedList, setSelectedList] = useState<'today' | 'tomorrow' | 'next week' | 'next month' | 'someday'>('today');
+  const [selectedList, setSelectedList] = useState<'today' | 'tomorrow' | 'next week' | 'next month' | 'someday' | 'completed' >('today');
+  const [isTaskFormVisible, setIsTaskFormVisible] = useState<boolean>(false);
 
   
 
   const handleTaskSubmit = (taskData: TaskType) => {
     setTasks([...tasks, taskData]);
+    setIsTaskFormVisible(false);
   };
 
   const handleCompletionChange = (taskId: string, isCompleted: boolean) => {
@@ -60,6 +63,20 @@ function App() {
       prevTasks.map((task) =>
         task.id === taskId ? { ...task, completed: isCompleted } : task,
       ),
+    );
+  };
+
+  const toggleTaskFormVisibility = () => {
+    setIsTaskFormVisible(prevVisible => !prevVisible);
+  };
+
+  const handleCancelForm = () => {
+    setIsTaskFormVisible(false);
+  };
+
+  const handleListChange = (taskId: string, newList: TaskType['list']) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
     );
   };
 
@@ -74,26 +91,32 @@ function App() {
       </AppBar>
       <Container maxWidth="sm">
         <Box marginTop={2}>
-          <TaskForm onSubmit={handleTaskSubmit} />
+          {isTaskFormVisible ? (
+            <TaskForm onSubmit={handleTaskSubmit} onCancel={handleCancelForm} />
+          ) : (
+            <IconButton onClick={toggleTaskFormVisibility} color="primary">
+              <AddIcon />
+            </IconButton>
+          )}
         </Box>
         <Box marginTop={4} marginBottom={2}>
-          <Grid container spacing={2}>
-            {['today', 'tomorrow', 'next week', 'next month', 'someday'].map(
-              (list) => (
-                <Grid item key={list}>
-                  <TaskFilterButton
-                    label={list}
-                    selected={selectedList === list}
-                    onSelect={(label) => setSelectedList(label as any)}
-                  />
-                </Grid>
-              ),
-            )}
-          </Grid>
-        </Box>
-        <Box marginTop={4}>
-          <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} />
-        </Box>
+        <Grid container spacing={2}>
+          {['today', 'tomorrow', 'next week', 'next month', 'someday', 'completed'].map(
+            (list) => (
+              <Grid item key={list}>
+                <TaskFilterButton
+                  label={list}
+                  selected={selectedList === list}
+                  onSelect={(label) => setSelectedList(label as any)}
+                />
+              </Grid>
+            ),
+          )}
+        </Grid>
+      </Box>
+      <Box marginTop={4}>
+        <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} onListChange={handleListChange}/>
+      </Box>
       </Container>
     </div>
   );

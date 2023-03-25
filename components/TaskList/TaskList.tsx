@@ -4,11 +4,12 @@ import Task from '../Task/Task';
 
 interface TaskListProps {
   tasks: TaskType[];
-  selectedList: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';
-  onCompletionChange: (taskId: string, isCompleted: boolean) => void;
+  selectedList: TaskType['list'];
+  onCompletionChange: (taskId: string, completed: boolean) => void;
+  onListChange: (taskId: string, newList: TaskType['list']) => void; // Add this line
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange }) => {
   const filteredTasks = tasks.filter(task => task.list === selectedList);
 
   const sortedTasks = filteredTasks.sort((a, b) => {
@@ -38,11 +39,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionCh
   });
 
   return (
-    <>
+    <div>
       {sortedTasks.map(task => (
-        <Task key={task.id} task={task} onCompletionChange={onCompletionChange} />
+        <Task key={task.id} task={task} onCompletionChange={onCompletionChange} onListChange={onListChange} />
       ))}
-    </>
+    </div>
   );
 };
 

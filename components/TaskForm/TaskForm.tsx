@@ -12,7 +12,7 @@ interface Task {
   priority: 'normal' | 'high' | 'urgent';
   tags: string[];
   completed: boolean;
-  list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';
+  list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday' | 'completed';
 }
 
 interface FormData {
@@ -26,9 +26,10 @@ interface FormData {
 
 interface TaskFormProps {
   onSubmit: (taskData: Task) => void;
+  onCancel: () => void;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialValues }) => {
   const [tags, setTags] = useState(initialValues?.tags.join(', ') || '');
   const { handleSubmit, control, reset } = useForm<FormData>();
 
@@ -98,7 +99,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="sizing"
             control={control}
-            defaultValue=""
+            defaultValue={1}
             render={({ field }) => (
               <TextField {...field} select label="Sizing" variant="outlined" fullWidth required>
                 {[1, 2, 3, 5, 8, 13, 21].map(value => (
@@ -114,7 +115,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
           <Controller
             name="priority"
             control={control}
-            defaultValue=""
+            defaultValue="normal"
             render={({ field }) => (
               <TextField {...field} select label="Priority" variant="outlined" fullWidth required>
                 {['normal', 'high', 'urgent'].map(value => (
@@ -141,10 +142,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialValues }) => {
             )}
           />
         </Grid>
-        <Grid item xs={12}>
-          <Button type="submit" variant="contained" color="primary">
-            Submit
-          </Button>
+        <Grid container spacing={2} justifyContent="flex-end">
+          <Grid item>
+            <Button variant="outlined" onClick={onCancel}>
+              Cancel
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary" type="submit">
+              Submit
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </form>
