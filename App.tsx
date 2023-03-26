@@ -12,7 +12,9 @@ import { ThemeProvider, createTheme } from '@mui/material';
 
 
 function App() {
+  //Set Velocity
   const [velocity, setVelocity] = useState<number>(10);
+
   // Dummy task for testing
   const dummyTask: TaskType = {
     id: '1',
@@ -80,6 +82,13 @@ function App() {
     setTasks((prevTasks) =>
       prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
     );
+  };
+
+  //Calculate the cumulative total points of tasks in the 'today' list
+  const getTotalPoints = (tasks: TaskType[]) => {
+    return tasks
+      .filter((task) => task.list === 'today')
+      .reduce((total, currentTask) => total + currentTask.sizing, 0);
   };
 
   const theme = createTheme({
