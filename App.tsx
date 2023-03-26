@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
@@ -7,10 +7,12 @@ import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
 import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
+import { ThemeProvider, createTheme } from '@mui/material';
 
 
 
 function App() {
+  const [velocity, setVelocity] = useState<number>(10);
   // Dummy task for testing
   const dummyTask: TaskType = {
     id: '1',
@@ -80,45 +82,64 @@ function App() {
     );
   };
 
+  const theme = createTheme({
+    components: {
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            '&.completed': {
+              color: 'gray',
+            },
+            '&.title.completed': {
+              textDecoration: 'line-through',
+            },
+          },
+        },
+      },
+    },
+  });
+
   return (
-    <div>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div">
-            To Do
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="sm">
-        <Box marginTop={2}>
-          {isTaskFormVisible ? (
-            <TaskForm onSubmit={handleTaskSubmit} onCancel={handleCancelForm} />
-          ) : (
-            <IconButton onClick={toggleTaskFormVisibility} color="primary">
-              <AddIcon />
-            </IconButton>
-          )}
+    <ThemeProvider theme={theme}>
+      <div>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div">
+              To Do
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="sm">
+          <Box marginTop={2}>
+            {isTaskFormVisible ? (
+              <TaskForm onSubmit={handleTaskSubmit} onCancel={handleCancelForm} />
+            ) : (
+              <IconButton onClick={toggleTaskFormVisibility} color="primary">
+                <AddIcon />
+              </IconButton>
+            )}
+          </Box>
+          <Stack marginTop={1} marginBottom={1}>
+            <Grid container spacing={1}>
+              {['today', 'tomorrow', 'next week', 'next month', 'someday', 'completed'].map(
+                (list) => (
+                  <Grid item key={list}>
+                    <TaskFilterButton
+                      label={list}
+                      selected={selectedList === list}
+                      onSelect={(label) => setSelectedList(label as any)}
+                    />
+                  </Grid>
+                ),
+              )}
+            </Grid>
+          </Stack>
+        <Box marginTop={4}>
+          <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} onListChange={handleListChange}/>
         </Box>
-        <Box marginTop={4} marginBottom={2}>
-        <Grid container spacing={2}>
-          {['today', 'tomorrow', 'next week', 'next month', 'someday', 'completed'].map(
-            (list) => (
-              <Grid item key={list}>
-                <TaskFilterButton
-                  label={list}
-                  selected={selectedList === list}
-                  onSelect={(label) => setSelectedList(label as any)}
-                />
-              </Grid>
-            ),
-          )}
-        </Grid>
-      </Box>
-      <Box marginTop={4}>
-        <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} onListChange={handleListChange}/>
-      </Box>
-      </Container>
-    </div>
+        </Container>
+      </div>
+    </ThemeProvider>
   );
 }
 
