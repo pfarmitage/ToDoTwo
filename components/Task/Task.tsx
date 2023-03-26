@@ -24,10 +24,12 @@ interface Task {
 interface TaskProps {
   task: Task;
   onCompletionChange: (taskId: string, completed: boolean) => void;
-  onListChange: (taskId: string, newList: Task['list']) => void; // Updated the type here
+  onListChange: (taskId: string, newList: Task['list']) => void;
+  totalPoints: number;
+  velocity: number;
 }
 
-const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange }) => {
+const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, totalPoints, velocity }) => {
   const handleCompletionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onCompletionChange(task.id, event.target.checked);
   };

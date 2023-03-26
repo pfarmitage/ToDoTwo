@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
@@ -85,13 +85,18 @@ function App() {
   };
 
   //Calculate the cumulative total points of tasks in the 'today' list
-  const getTotalPoints = (tasks: TaskType[]) => {
+  const getTotalPoints = () => {
     return tasks
       .filter((task) => task.list === 'today')
       .reduce((total, currentTask) => total + currentTask.sizing, 0);
   };
 
   const theme = createTheme({
+    palette: {
+      text: {
+        primary: '#000000',
+      },
+    },
     components: {
       MuiTypography: {
         styleOverrides: {
@@ -128,6 +133,10 @@ function App() {
               </IconButton>
             )}
           </Box>
+          <Box marginTop={2}>
+            <Typography>Total points for today: {getTotalPoints()}</Typography>
+            <Typography>Velocity: {velocity}</Typography>
+          </Box>
           <Stack marginTop={1} marginBottom={1}>
             <Grid container spacing={1}>
               {['today', 'tomorrow', 'next week', 'next month', 'someday', 'completed'].map(
@@ -144,7 +153,7 @@ function App() {
             </Grid>
           </Stack>
         <Box marginTop={4}>
-          <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} onListChange={handleListChange}/>
+          <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} onListChange={handleListChange} totalPoints={getTotalPoints(tasks)} velocity={velocity}/>
         </Box>
         </Container>
       </div>
