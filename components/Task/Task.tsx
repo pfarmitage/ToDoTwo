@@ -65,9 +65,9 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
               >
                 <EditIcon fontSize="small" />
               </IconButton>
-            </AccordionSummary>
-            <AccordionDetails>
-            <Stack direction="row" spacing={1} sx={{ marginTop: 1 }}>
+            
+            <Box className="move-icons-wrapper">
+            <Stack direction="row" spacing={1} sx={{ marginTop: 1 }} >
               {task.list !== 'today' && (
                 <IconButton
                   size="small"
@@ -114,8 +114,9 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
                 </IconButton>
               )}
             </Stack>
-          
-
+            </Box>
+            </AccordionSummary>
+            <AccordionDetails>
             <Typography className={task.completed ? 'completed' : ''}>
               {task.description}
             </Typography>
