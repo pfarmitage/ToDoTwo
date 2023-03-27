@@ -9,6 +9,8 @@ import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+
 
 
 function App() {
@@ -181,7 +183,7 @@ function App() {
           onClose={toggleSidebar}
         >
           <List>
-            {['today', 'tomorrow', 'next week', 'next month', 'someday'].map((text) => (
+            {['Board', 'Backlog'].map((text) => (
               <ListItem button key={text}>
                 <ListItemText primary={text} />
               </ListItem>
@@ -193,15 +195,23 @@ function App() {
           <Box marginTop={2}>
           {isTaskFormModalOpen && (
             <Dialog open={isTaskFormModalOpen} onClose={toggleTaskFormVisibility} maxWidth="sm" fullWidth>
-              <DialogTitle>{editedTask ? 'Edit Task' : 'Add Task'}</DialogTitle>
+              <DialogTitle>
+                {editedTask ? 'Edit Task' : 'Add Task'}
+                <IconButton
+                  edge="end"
+                  color="inherit"
+                  onClick={handleModalClose}
+                  aria-label="close"
+                  sx={{ position: 'absolute', right: 8, top: 8 }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </DialogTitle>
               <DialogContent>
-                <TaskForm onSubmit={handleTaskSubmit} initialTask={editedTask} />
+                <TaskForm onSubmit={handleTaskSubmit}
+                onCancel={handleModalClose}
+                initialTask={editedTask}/>
               </DialogContent>
-              <DialogActions>
-                <Button onClick={toggleTaskFormVisibility} color="secondary">
-                  Cancel
-                </Button>
-              </DialogActions>
             </Dialog>
             )}
             <IconButton onClick={toggleTaskFormVisibility} color="primary">

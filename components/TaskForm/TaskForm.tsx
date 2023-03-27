@@ -8,18 +8,19 @@ import Task from '../Task/Task';
 interface FormData {
   title: string;
   description: string;
-  dueDate: string | null;
+  dueDate: string | '';
   sizing: number;
   priority: 'normal' | 'high' | 'urgent';
 }
 
 interface TaskFormProps {
-  onSubmit: (taskData: TaskType) => void;
+  onSubmit: (taskData: Task) => void;
   onCancel: () => void;
+  onResetForm: () => void;
   initialTask?: Task;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialTask }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, initialTask }) => {
   console.log(initialTask);
 
   const { handleSubmit, control, reset, setValue } = useForm<FormData>({
@@ -49,8 +50,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialTask }) 
         sizing: initialTask.sizing,
         priority: initialTask.priority,
       });
+    } else {
+      reset({
+        title: '',
+        description: '',
+        dueDate: null,
+        sizing: 1,
+        priority: 'normal',
+      });
     }
-  }, [initialTask, reset]);
+  }, [initialTask, reset, onResetForm]);
   
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
@@ -66,6 +75,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialTask }) 
     });
   
     reset();
+  };
+
+  const handleResetForm = () => {
+    reset({
+      title: '',
+      description: '',
+      dueDate: '',
+      sizing: 1,
+      priority: 'normal',
+    });
   };
 
   return (
