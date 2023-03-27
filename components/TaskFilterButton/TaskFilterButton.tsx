@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@mui/material';
+import { Button, ButtonGroup } from '@mui/material';
 
 interface TaskFilterButtonProps {
   label: string;
@@ -9,14 +9,16 @@ interface TaskFilterButtonProps {
 
 const TaskFilterButton: React.FC<TaskFilterButtonProps> = ({ label, selected, onSelect }) => {
   return (
-    <Button
-      variant={selected ? 'contained' : 'outlined'}
-      color="primary"
-      onClick={() => onSelect(label)}
-      sx={{ margin: 1 }}
-    >
-      {label}
-    </Button>
+    <ButtonGroup variant="outlined">
+      <Button
+        size="small"
+        variant={selected ? 'contained' : 'outlined'}
+        color="primary"
+        onClick={() => onSelect(label)}
+      >
+        {label}
+      </Button>
+    </ButtonGroup>
   );
 };
 

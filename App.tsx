@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
@@ -8,7 +8,7 @@ import TaskList from './components/TaskList/TaskList';
 import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
-
+import MenuIcon from '@mui/icons-material/Menu';
 
 
 function App() {
@@ -23,7 +23,6 @@ function App() {
     dueDate: '2023-03-30',
     sizing: 3,
     priority: 'normal',
-    tags: ['test', 'demo'],
     completed: false,
     list: 'today',
   };
@@ -34,7 +33,6 @@ function App() {
     dueDate: '2023-03-25',
     sizing: 5,
     priority: 'high',
-    tags: ['test', 'demo'],
     completed: false,
     list: 'next week',
   };
@@ -46,20 +44,42 @@ function App() {
     dueDate: '2023-03-24',
     sizing: 1,
     priority: 'urgent',
-    tags: ['test', 'demo'],
     completed: false,
     list: 'tomorrow',
   };
 
   const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3]);
   const [selectedList, setSelectedList] = useState<'today' | 'tomorrow' | 'next week' | 'next month' | 'someday' | 'completed' >('today');
-  const [isTaskFormVisible, setIsTaskFormVisible] = useState<boolean>(false);
 
-  
+  const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
+
+  //Sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const handleTaskSubmit = (taskData: TaskType) => {
-    setTasks([...tasks, taskData]);
-    setIsTaskFormVisible(false);
+    if (!taskData.isNewTask) {
+      // Update existing task
+      const updatedTasks = tasks.map((task) => (task.id === taskData.id ? taskData : task));
+      setTasks(updatedTasks);
+    } else {
+      // Create new task
+      setTasks([...tasks, taskData]);
+    }
+    setEditedTask(null);
+    toggleTaskFormVisibility();
+  };
+
+  const handleModalClose = () => {
+    setEditedTask(null);
+    toggleTaskFormVisibility();
+  };
+
+  const handleEditTask = (task: TaskType) => {
+    setEditedTask(task);
+    toggleTaskFormVisibility();
   };
 
   const handleCompletionChange = (taskId: string, isCompleted: boolean) => {
@@ -71,11 +91,7 @@ function App() {
   };
 
   const toggleTaskFormVisibility = () => {
-    setIsTaskFormVisible(prevVisible => !prevVisible);
-  };
-
-  const handleCancelForm = () => {
-    setIsTaskFormVisible(false);
+    setIsTaskFormModalVisible(prevVisible => !prevVisible);
   };
 
   const handleListChange = (taskId: string, newList: TaskType['list']) => {
@@ -83,6 +99,8 @@ function App() {
       prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
     );
   };
+
+  const [editedTask, setEditedTask] = useState<TaskType | null>(null);
 
   //Calculate the cumulative total points of tasks in the 'today' list
   const getTotalPoints = () => {
@@ -113,29 +131,85 @@ function App() {
     },
   });
 
+  const ProgressBar: React.FC<{ totalPoints: number; velocity: number }> = ({ totalPoints, velocity }) => {
+    const percentage = Math.min((totalPoints / velocity) * 100, 100);
+  
+    return (
+      <>
+        <Typography>Task Capacity for Today</Typography>
+          <Box border={1} borderColor="grey.500" borderRadius={5} width="100%" height={20}>
+            <Box
+              bgcolor="primary.main"
+              borderRadius={5}
+              width={`${percentage}%`}
+              height="100%"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+            <Typography color="white" fontWeight="bold">
+              {totalPoints} / {velocity}
+            </Typography>
+          </Box>
+        </Box>
+      </>
+    );
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <div>
+        <CssBaseline />
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div">
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleSidebar}
+            edge="start"
+          >
+          <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div">
               To Do
             </Typography>
           </Toolbar>
         </AppBar>
+        <Drawer
+          anchor="left"
+          open={isSidebarOpen}
+          onClose={toggleSidebar}
+        >
+          <List>
+            {['today', 'tomorrow', 'next week', 'next month', 'someday'].map((text) => (
+              <ListItem button key={text}>
+                <ListItemText primary={text} />
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
         <Container maxWidth="sm">
+          
           <Box marginTop={2}>
-            {isTaskFormVisible ? (
-              <TaskForm onSubmit={handleTaskSubmit} onCancel={handleCancelForm} />
-            ) : (
-              <IconButton onClick={toggleTaskFormVisibility} color="primary">
-                <AddIcon />
-              </IconButton>
+          {isTaskFormModalOpen && (
+            <Dialog open={isTaskFormModalOpen} onClose={toggleTaskFormVisibility} maxWidth="sm" fullWidth>
+              <DialogTitle>{editedTask ? 'Edit Task' : 'Add Task'}</DialogTitle>
+              <DialogContent>
+                <TaskForm onSubmit={handleTaskSubmit} initialTask={editedTask} />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={toggleTaskFormVisibility} color="secondary">
+                  Cancel
+                </Button>
+              </DialogActions>
+            </Dialog>
             )}
+            <IconButton onClick={toggleTaskFormVisibility} color="primary">
+              <AddIcon />
+            </IconButton>
           </Box>
           <Box marginTop={2}>
-            <Typography>Total points for today: {getTotalPoints()}</Typography>
-            <Typography>Velocity: {velocity}</Typography>
+            <ProgressBar totalPoints={getTotalPoints()} velocity={velocity} />
           </Box>
           <Stack marginTop={1} marginBottom={1}>
             <Grid container spacing={1}>
@@ -152,8 +226,16 @@ function App() {
               )}
             </Grid>
           </Stack>
-        <Box marginTop={4}>
-          <TaskList tasks={tasks} selectedList={selectedList} onCompletionChange={handleCompletionChange} onListChange={handleListChange} totalPoints={getTotalPoints(tasks)} velocity={velocity}/>
+        <Box marginTop={1}>
+          <TaskList
+            tasks={tasks}
+            selectedList={selectedList}
+            onCompletionChange={handleCompletionChange}
+            onListChange={handleListChange}
+            onEditTask={handleEditTask}
+            totalPoints={getTotalPoints(tasks)}
+            velocity={velocity}
+          />
         </Box>
         </Container>
       </div>

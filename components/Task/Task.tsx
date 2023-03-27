@@ -7,6 +7,7 @@ import StartIcon from '@mui/icons-material/Start';
 import HelpIcon from '@mui/icons-material/Help';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
 
 
 interface Task {
@@ -16,27 +17,32 @@ interface Task {
   dueDate: string | null;
   sizing: number;
   priority: 'normal' | 'high' | 'urgent';
-  tags: string[];
   completed: boolean;
   list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';
+  isNewTask?: boolean;
 }
 
 interface TaskProps {
   task: Task;
   onCompletionChange: (taskId: string, completed: boolean) => void;
   onListChange: (taskId: string, newList: Task['list']) => void;
+  onEditTask: (task: Task) => void;
   totalPoints: number;
   velocity: number;
 }
 
-const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, totalPoints, velocity }) => {
+const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onEditTask, totalPoints, velocity }) => {
   const handleCompletionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onCompletionChange(task.id, event.target.checked);
   };
 
+  const handleEditButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onEditTask(task);
+  };
+
   return (
     <Card>
-      <CardContent>
       <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <FormControlLabel
@@ -47,51 +53,68 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, tot
                 />
               }
               label={<Typography
-                variant="h6"
                 className={task.completed ? 'completed title' : ''}
               >
                 {task.title}
               </Typography>}
-            />
+              />
+              <IconButton
+                onClick={handleEditButtonClick}
+                size="small"
+                sx={{ marginLeft: 1 }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </AccordionSummary>
+            <AccordionDetails>
             <Stack direction="row" spacing={1} sx={{ marginTop: 1 }}>
-              <IconButton
-                size="small"
-                title="Today"
-                onClick={() => onListChange(task.id, 'today')}
-              >
-                <FiberManualRecordIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                title="Tomorrow"
-                onClick={() => onListChange(task.id, 'tomorrow')}
-              >
-                <KeyboardArrowRightIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                title="Next Week"
-                onClick={() => onListChange(task.id, 'next week')}
-              >
-                <EastIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                title="Next Month"
-                onClick={() => onListChange(task.id, 'next month')}
-              >
-                <StartIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                title="Someday"
-                onClick={() => onListChange(task.id, 'someday')}
-              >
-                <HelpIcon fontSize="small" />
-              </IconButton>
+              {task.list !== 'today' && (
+                <IconButton
+                  size="small"
+                  title="Today"
+                  onClick={() => onListChange(task.id, 'today')}
+                >
+                  <FiberManualRecordIcon fontSize="small" />
+                </IconButton>
+              )}
+              {task.list !== 'tomorrow' && (
+                <IconButton
+                  size="small"
+                  title="Tomorrow"
+                  onClick={() => onListChange(task.id, 'tomorrow')}
+                >
+                  <KeyboardArrowRightIcon fontSize="small" />
+                </IconButton>
+              )}
+              {task.list !== 'next week' && (
+                <IconButton
+                  size="small"
+                  title="Next Week"
+                  onClick={() => onListChange(task.id, 'next week')}
+                >
+                  <EastIcon fontSize="small" />
+                </IconButton>
+              )}
+              {task.list !== 'next month' && (
+                <IconButton
+                  size="small"
+                  title="Next Month"
+                  onClick={() => onListChange(task.id, 'next month')}
+                >
+                  <StartIcon fontSize="small" />
+                </IconButton>
+              )}
+              {task.list !== 'someday' && (
+                <IconButton
+                  size="small"
+                  title="Someday"
+                  onClick={() => onListChange(task.id, 'someday')}
+                >
+                  <HelpIcon fontSize="small" />
+                </IconButton>
+              )}
             </Stack>
-          </AccordionSummary>
-          <AccordionDetails>
+          
 
             <Typography className={task.completed ? 'completed' : ''}>
               {task.description}
@@ -107,12 +130,8 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, tot
             <Typography className={task.completed ? 'completed' : ''}>
               Priority: {task.priority}
             </Typography>
-            <Typography className={task.completed ? 'completed' : ''}>
-              Tags: {task.tags.join(', ')}
-            </Typography>
           </AccordionDetails>
         </Accordion>
-      </CardContent>
     </Card>
   );
 };

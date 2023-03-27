@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Box, Grid, TextField, MenuItem, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string | null;
-  sizing: number;
-  priority: 'normal' | 'high' | 'urgent';
-  tags: string[];
-  completed: boolean;
-  list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday' | 'completed';
-}
+import { TaskType } from '../../types';
+import Task from '../Task/Task';
 
 interface FormData {
   title: string;
@@ -21,35 +11,60 @@ interface FormData {
   dueDate: string | null;
   sizing: number;
   priority: 'normal' | 'high' | 'urgent';
-  tags: string;
 }
 
 interface TaskFormProps {
-  onSubmit: (taskData: Task) => void;
+  onSubmit: (taskData: TaskType) => void;
   onCancel: () => void;
+  initialTask?: Task;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialValues }) => {
-  const [tags, setTags] = useState(initialValues?.tags.join(', ') || '');
-  const { handleSubmit, control, reset } = useForm<FormData>();
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialTask }) => {
+  console.log(initialTask);
 
-  const handleTagsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTags(event.target.value);
-  };
+  const { handleSubmit, control, reset, setValue } = useForm<FormData>({
+    defaultValues: initialTask
+      ? {
+          title: initialTask.title,
+          description: initialTask.description,
+          dueDate: initialTask.dueDate,
+          sizing: initialTask.sizing,
+          priority: initialTask.priority,
+        }
+      : {
+          title: '',
+          description: '',
+          dueDate: null,
+          sizing: 1,
+          priority: 'normal',
+        },
+  });
+
+  useEffect(() => {
+    if (initialTask) {
+      reset({
+        title: initialTask.title,
+        description: initialTask.description,
+        dueDate: initialTask.dueDate,
+        sizing: initialTask.sizing,
+        priority: initialTask.priority,
+      });
+    }
+  }, [initialTask, reset]);
   
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
-      id: uuidv4(),
+      ...(initialTask || { id: uuidv4() }),
       title: data.title,
       description: data.description,
       dueDate: data.dueDate,
       sizing: data.sizing,
       priority: data.priority,
-      tags: data.tags.split(',').map(tag => tag.trim()),
-      completed: false,
-      list: 'today',
+      completed: initialTask?.completed || false,
+      list: initialTask?.list || 'today',
+      isNewTask: !initialTask,
     });
-
+  
     reset();
   };
 
@@ -127,30 +142,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, initialValues }
             )}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <Controller
-            name="tags"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Tags (comma-separated)"
-                variant="outlined"
-                fullWidth
-              />
-            )}
-          />
-        </Grid>
         <Grid container spacing={2} justifyContent="flex-end">
           <Grid item>
-            <Button variant="outlined" onClick={onCancel}>
-              Cancel
-            </Button>
-          </Grid>
-          <Grid item>
             <Button variant="contained" color="primary" type="submit">
-              Submit
+              {initialTask ? 'Update' : 'Submit'}
             </Button>
           </Grid>
         </Grid>
