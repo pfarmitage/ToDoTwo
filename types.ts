@@ -7,6 +7,6 @@ export interface TaskType {
   priority: 'normal' | 'high' | 'urgent';
   tags: string[];
   completed: boolean;
-  list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';    
+  list: 'today' | 'this week' | 'this month' | 'someday';    
   isNewTask?: boolean;
 }

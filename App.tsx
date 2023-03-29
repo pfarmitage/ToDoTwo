@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
+
 import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
@@ -10,6 +11,7 @@ import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 
 
@@ -36,7 +38,7 @@ function App() {
     sizing: 5,
     priority: 'high',
     completed: false,
-    list: 'next week',
+    list: 'today',
   };
   
   const dummyTask3: TaskType = {
@@ -47,11 +49,36 @@ function App() {
     sizing: 1,
     priority: 'urgent',
     completed: false,
-    list: 'tomorrow',
+    list: 'someday',
   };
 
-  const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3]);
-  const [selectedList, setSelectedList] = useState<'today' | 'tomorrow' | 'next week' | 'next month' | 'someday' | 'completed' >('today');
+  const dummyTask4: TaskType = {
+    id: '4',
+    title: 'Future Task',
+    description: 'This is a test task with normal priority',
+    dueDate: '2024-03-24',
+    sizing: 1,
+    priority: 'normal',
+    completed: false,
+    list: 'this week',
+  };
+
+  const dummyTask5: TaskType = {
+    id: '5',
+    title: 'Past Task',
+    description: 'This is a test task with normal priority',
+    dueDate: '2022-03-24',
+    sizing: 1,
+    priority: 'normal',
+    completed: false,
+    list: 'this month',
+  };
+
+  //Set initial tasks state
+  const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
+
+  //Set initial selected List state
+  const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' | 'completed' >('today');
 
   const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
 
@@ -101,6 +128,8 @@ function App() {
       prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
     );
   };
+
+  
 
   const [editedTask, setEditedTask] = useState<TaskType | null>(null);
 
@@ -224,7 +253,7 @@ function App() {
           </Box>
           <Stack marginTop={1} marginBottom={1}>
             <Grid container spacing={1}>
-              {['today', 'tomorrow', 'next week', 'next month', 'someday', 'completed'].map(
+              {['today', 'this week', 'this month', 'someday'].map(
                 (list) => (
                   <Grid item key={list}>
                     <TaskFilterButton

@@ -1,14 +1,16 @@
 import React from 'react';
 import { Card, CardContent, Typography, Checkbox, FormControlLabel, Button, Box, Stack,   IconButton, Accordion, AccordionSummary, AccordionDetails,} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import EastIcon from '@mui/icons-material/East';
-import StartIcon from '@mui/icons-material/Start';
-import HelpIcon from '@mui/icons-material/Help';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
-
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import NextPlanIcon from '@mui/icons-material/NextPlan';
+import HelpIcon from '@mui/icons-material/Help';
+import CircleIcon from '@mui/icons-material/Circle';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import RemoveIcon from '@mui/icons-material/Remove';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 interface Task {
   id: string;
@@ -18,7 +20,7 @@ interface Task {
   sizing: number;
   priority: 'normal' | 'high' | 'urgent';
   completed: boolean;
-  list: 'today' | 'tomorrow' | 'next week' | 'next month' | 'someday';
+  list: 'today' | 'this week' | 'this month' | 'someday';
   isNewTask?: boolean;
 }
 
@@ -43,96 +45,100 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
 
   return (
     <Card>
-      <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={task.completed}
-                  onChange={handleCompletionChange}
-                />
-              }
-              label={<Typography
-                className={task.completed ? 'completed title' : ''}
-              >
-                {task.title}
-              </Typography>}
+      <CardContent>
+        <Stack direction="row">  
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={task.completed}
+                onChange={handleCompletionChange}
               />
+            }
+            label={}
+            />
+          <Typography
+              className={task.completed ? 'completed title' : ''}
+              onClick={handleEditButtonClick}
+              style={{cursor:'pointer'}}
+              title="Click to View/Edit"
+            >
+              {task.title}
               <IconButton
-                onClick={handleEditButtonClick}
                 size="small"
-                sx={{ marginLeft: 1 }}
-              >
-                <EditIcon fontSize="small" />
+              >            
+              <EditIcon fontSize="small" />
               </IconButton>
-            
-            <Box className="move-icons-wrapper">
-            <Stack direction="row" spacing={1} sx={{ marginTop: 1 }} >
-              {task.list !== 'today' && (
-                <IconButton
-                  size="small"
-                  title="Today"
-                  onClick={() => onListChange(task.id, 'today')}
-                >
-                  <FiberManualRecordIcon fontSize="small" />
-                </IconButton>
-              )}
-              {task.list !== 'tomorrow' && (
-                <IconButton
-                  size="small"
-                  title="Tomorrow"
-                  onClick={() => onListChange(task.id, 'tomorrow')}
-                >
-                  <KeyboardArrowRightIcon fontSize="small" />
-                </IconButton>
-              )}
-              {task.list !== 'next week' && (
-                <IconButton
-                  size="small"
-                  title="Next Week"
-                  onClick={() => onListChange(task.id, 'next week')}
-                >
-                  <EastIcon fontSize="small" />
-                </IconButton>
-              )}
-              {task.list !== 'next month' && (
-                <IconButton
-                  size="small"
-                  title="Next Month"
-                  onClick={() => onListChange(task.id, 'next month')}
-                >
-                  <StartIcon fontSize="small" />
-                </IconButton>
-              )}
-              {task.list !== 'someday' && (
-                <IconButton
-                  size="small"
-                  title="Someday"
-                  onClick={() => onListChange(task.id, 'someday')}
-                >
-                  <HelpIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Stack>
-            </Box>
-            </AccordionSummary>
-            <AccordionDetails>
-            <Typography className={task.completed ? 'completed' : ''}>
-              {task.description}
-            </Typography>
-            {task.dueDate && (
-              <Typography className={task.completed ? 'completed' : ''}>
-                Due: {task.dueDate}
-              </Typography>
-            )}
-            <Typography className={task.completed ? 'completed' : ''}>
-              Sizing: {task.sizing}
-            </Typography>
-            <Typography className={task.completed ? 'completed' : ''}>
-              Priority: {task.priority}
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
+          </Typography>  
+        </Stack>
+        <Stack direction="row" spacing={1} sx={{ margin: 0 }} >
+          {task.priority == 'normal' && (
+            <IconButton
+              size="small"
+              title="Normal"
+            >            
+              <RemoveIcon fontSize="small" />
+            </IconButton>
+          )}
+          {task.priority == 'high' && (
+            <IconButton
+              size="small"
+              title="Normal"
+            >            
+              <KeyboardArrowUpIcon fontSize="small" />
+            </IconButton>
+          )}
+          {task.priority == 'urgent' && (
+            <IconButton
+              size="small"
+              title="Normal"
+            >            
+              <KeyboardDoubleArrowUpIcon fontSize="small" />
+            </IconButton>
+          )}
+          <Typography
+              className={task.completed ? 'completed' : ''}
+              title="Sizing"
+            >
+              {task.sizing}
+          </Typography>  
+          {task.list !== 'today' && (
+            <IconButton
+              size="small"
+              title="Today"
+              onClick={() => onListChange(task.id, 'today')}
+            >
+              <CircleIcon fontSize="small" />
+            </IconButton>
+          )}
+          {task.list !== 'this week' && (
+            <IconButton
+              size="small"
+              title="This Week"
+              onClick={() => onListChange(task.id, 'this week')}
+            >
+              <ArrowCircleRightIcon fontSize="small" />
+            </IconButton>
+          )}
+          {task.list !== 'this month' && (
+            <IconButton
+              size="small"
+              title="This Month"
+              onClick={() => onListChange(task.id, 'this month')}
+            >
+              <NextPlanIcon fontSize="small" />
+            </IconButton>
+          )}
+          {task.list !== 'someday' && (
+            <IconButton
+              size="small"
+              title="Someday"
+              onClick={() => onListChange(task.id, 'someday')}
+            >
+              <HelpIcon fontSize="small" />
+            </IconButton>
+          )}
+        </Stack>     
+      </CardContent>
     </Card>
   );
 };
