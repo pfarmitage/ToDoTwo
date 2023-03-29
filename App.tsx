@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
+import TaskBoard from './components/TaskBoard/TaskBoard';
 import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
@@ -87,6 +88,37 @@ function App() {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  //Plan my day
+  const [planMyDayVisible, setPlanMyDayVisible] = useState(false);
+  
+  const togglePlanMyDay = () => {
+    setPlanMyDayVisible(!planMyDayVisible);
+  };
+  
+  const onMoveTask = (sourceIndex: number, destinationIndex: number, list: TaskType['list']) => {
+    setTasks((prevTasks) => {
+      const sourceTask = prevTasks.find((task, index) => task.list === list && index === sourceIndex);
+      const destinationTask = prevTasks.find((task, index) => task.list === list && index === destinationIndex);
+  
+      if (!sourceTask || !destinationTask) {
+        return prevTasks;
+      }
+  
+      return prevTasks.map((task) => {
+        if (task.id === sourceTask.id) {
+          return { ...task, list: destinationTask.list };
+        }
+  
+        if (task.id === destinationTask.id) {
+          return { ...task, list: sourceTask.list };
+        }
+  
+        return task;
+      });
+    });
+  };
+  
 
   const handleTaskSubmit = (taskData: TaskType) => {
     if (!taskData.isNewTask) {
@@ -217,9 +249,24 @@ function App() {
               <ListItem button key={text}>
                 <ListItemText primary={text} />
               </ListItem>
+              
             ))}
+            <ListItem>
+            <Button onClick={togglePlanMyDay}>Plan My Day</Button>
+          </ListItem>
           </List>
-        </Drawer>
+          </Drawer>
+          <Dialog open={planMyDayVisible} onClose={togglePlanMyDay} maxWidth="lg" fullWidth>
+        <DialogTitle>Plan My Day</DialogTitle>
+        <DialogContent>
+          <TaskBoard tasks={tasks} onMoveTask={onMoveTask} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={togglePlanMyDay} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
         <Container maxWidth="sm">
           
           <Box marginTop={2}>
