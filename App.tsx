@@ -97,26 +97,19 @@ function App() {
   };
   
   const onMoveTask = (sourceIndex: number, destinationIndex: number, list: TaskType['list']) => {
-    setTasks((prevTasks) => {
-      const sourceTask = prevTasks.find((task, index) => task.list === list && index === sourceIndex);
-      const destinationTask = prevTasks.find((task, index) => task.list === list && index === destinationIndex);
+    const sourceTasks = tasks.filter((task) => task.list === list);
+    const [movedTask] = sourceTasks.splice(sourceIndex, 1);
+    sourceTasks.splice(destinationIndex, 0, movedTask);
   
-      if (!sourceTask || !destinationTask) {
-        return prevTasks;
+    const updatedTasks = tasks.map((task) => {
+      const sourceTaskIndex = sourceTasks.findIndex((sourceTask) => sourceTask.id === task.id);
+      if (sourceTaskIndex !== -1) {
+        return sourceTasks[sourceTaskIndex];
       }
-  
-      return prevTasks.map((task) => {
-        if (task.id === sourceTask.id) {
-          return { ...task, list: destinationTask.list };
-        }
-  
-        if (task.id === destinationTask.id) {
-          return { ...task, list: sourceTask.list };
-        }
-  
-        return task;
-      });
+      return task;
     });
+  
+    setTasks(updatedTasks);
   };
   
 
