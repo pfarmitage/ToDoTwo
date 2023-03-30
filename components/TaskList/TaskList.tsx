@@ -2,6 +2,7 @@ import React from 'react';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
 
+
 interface TaskListProps {
   tasks: TaskType[];
   selectedList: TaskType['list'];
@@ -12,6 +13,7 @@ interface TaskListProps {
   velocity: number;
   hideControls?: boolean;
 }
+
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange, onEditTask,  hideControls = false}) => {
   const filteredTasks = tasks.filter(task => task.list === selectedList);

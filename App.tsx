@@ -154,9 +154,13 @@ function App() {
     );
   };
 
-  const toggleTaskFormVisibility = () => {
-    setIsTaskFormModalVisible(prevVisible => !prevVisible);
+  const toggleTaskFormVisibility = (reset: boolean = false) => {
+    setIsTaskFormModalVisible((prevVisible) => !prevVisible);
+    if (reset) {
+      setEditedTask(null);
+    }
   };
+  
 
   const handleListChange = (taskId: string, newList: TaskType['list']) => {
     setTasks((prevTasks) =>
@@ -293,13 +297,15 @@ function App() {
                 </IconButton>
               </DialogTitle>
               <DialogContent>
-                <TaskForm onSubmit={handleTaskSubmit}
+                <TaskForm   
+                key={editedTask ? editedTask.id : uuidv4()} 
+                onSubmit={handleTaskSubmit}
                 onCancel={handleModalClose}
                 initialTask={editedTask}/>
               </DialogContent>
             </Dialog>
             )}
-            <IconButton onClick={toggleTaskFormVisibility} color="primary">
+            <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
               <AddIcon />
             </IconButton>
           </Box>
