@@ -90,6 +90,8 @@ function App() {
   };
 
   //Planner
+  const [plannerTitle, setPlannerTitle] = useState('');
+
   const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
 
   const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
@@ -245,24 +247,46 @@ function App() {
           onClose={toggleSidebar}
         >
           <List>
-            {['Board', 'Backlog'].map((text) => (
+            {['Board', 'Completed'].map((text) => (
               <ListItem button key={text}>
                 <ListItemText primary={text} />
               </ListItem>
             ))}
-            <ListItem>
-            <button onClick={() => {openPlanner(['today', 'this week']); toggleSidebar(); }}>Plan Today</button>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week']);
+                setPlannerTitle('Plan Today');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan Today" />
             </ListItem>
-            <ListItem>
-            <button onClick={() => {openPlanner(['this month', 'someday']); toggleSidebar(); }}>Plan This Week</button>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week', 'this month']);
+                setPlannerTitle('Plan This Week');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan This Week" />
             </ListItem>
-            <ListItem>
-            <button onClick={() => {openPlanner(['today', 'this week', 'this month', 'someday']); toggleSidebar(); }}>Plan All</button>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week', 'this month', 'someday']);
+                setPlannerTitle('Plan This Month');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan All" />
             </ListItem>
           </List>
+
         </Drawer>
         <Dialog open={isPlannerOpen} onClose={closePlanner}>
-          <DialogTitle>Plan My Day</DialogTitle>
+          <DialogTitle>{plannerTitle}</DialogTitle>
           <IconButton
             style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
             edge="end"
@@ -272,7 +296,9 @@ function App() {
           >
             <CloseIcon />
           </IconButton>
-          <Planner tasks={tasks} onListChange={onListChange} />
+          <Planner   taskLists={visibleTaskLists}
+ tasks={tasks} onListChange={onListChange} title={plannerTitle}
+/>
         </Dialog>
         <Container maxWidth="sm">
           

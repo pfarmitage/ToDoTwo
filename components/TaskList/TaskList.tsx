@@ -10,9 +10,10 @@ interface TaskListProps {
   onEditTask: (task: TaskType) => void;
   totalPoints: number;
   velocity: number;
+  hideControls?: boolean;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange, onEditTask }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange, onEditTask,  hideControls = false}) => {
   const filteredTasks = tasks.filter(task => task.list === selectedList);
 
   const sortedTasks = filteredTasks.sort((a, b) => {
@@ -44,7 +45,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionCh
   return (
     <div>
       {sortedTasks.map(task => (
-        <Task key={task.id} task={task} onCompletionChange={onCompletionChange} onListChange={onListChange} onEditTask={onEditTask} />
+        <Task key={task.id} task={task} onCompletionChange={onCompletionChange} onListChange={onListChange} onEditTask={onEditTask} hideControls={hideControls} />
       ))}
     </div>
   );

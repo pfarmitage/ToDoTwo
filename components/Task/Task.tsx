@@ -31,9 +31,11 @@ interface TaskProps {
   onEditTask: (task: Task) => void;
   totalPoints: number;
   velocity: number;
+  hideControls?: boolean;
 }
 
-const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onEditTask, totalPoints, velocity }) => {
+const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, totalPoints, velocity,   hideControls = false,
+}) => {
   const handleCompletionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onCompletionChange(task.id, event.target.checked);
   };
@@ -47,6 +49,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
     <Card>
       <CardContent>
         <Stack direction="row">  
+        {!hideControls && (
           <FormControlLabel
             control={
               <Checkbox
@@ -56,6 +59,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
             }
             label={}
             />
+          )}
           <Typography
               className={task.completed ? 'completed title' : ''}
               onClick={handleEditButtonClick}
@@ -63,11 +67,13 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
               title="Click to View/Edit"
             >
               {task.title}
-              <IconButton
-                size="small"
-              >            
-              <EditIcon fontSize="small" />
-              </IconButton>
+              {!hideControls && (
+                <IconButton
+                  size="small"
+                >            
+                <EditIcon fontSize="small" />
+                </IconButton>
+              )}
           </Typography>  
         </Stack>
         <Stack direction="row" spacing={1} sx={{ margin: 0 }} >
