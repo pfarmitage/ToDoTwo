@@ -41,7 +41,7 @@ function App() {
     title: 'Test Task',
     description: 'This is a test task',
     dueDate: '2023-03-30',
-    sizing: 3,
+    sizing: 8,
     priority: 'normal',
     completed: false,
     list: 'today',
@@ -62,7 +62,7 @@ function App() {
     title: 'Test Task 3',
     description: 'This is a test task with urgent priority',
     dueDate: '2023-03-24',
-    sizing: 1,
+    sizing: 3,
     priority: 'urgent',
     completed: false,
     list: 'someday',
@@ -73,7 +73,7 @@ function App() {
     title: 'Future Task',
     description: 'This is a test task with normal priority',
     dueDate: '2024-03-24',
-    sizing: 1,
+    sizing: 5,
     priority: 'normal',
     completed: false,
     list: 'this week',
@@ -84,7 +84,7 @@ function App() {
     title: 'Past Task',
     description: 'This is a test task with normal priority',
     dueDate: '2022-03-24',
-    sizing: 1,
+    sizing: 3,
     priority: 'normal',
     completed: false,
     list: 'this month',
@@ -190,6 +190,12 @@ function App() {
   const getTotalPoints = () => {
     return tasks
       .filter((task) => task.list === 'today')
+      .reduce((total, currentTask) => total + currentTask.sizing, 0);
+  };
+
+  const getCompletedPoints = () => {
+    return tasks
+      .filter((task) => task.list === 'today' && task.completed)
       .reduce((total, currentTask) => total + currentTask.sizing, 0);
   };
 
@@ -334,11 +340,10 @@ function App() {
             )}
             <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
               <AddIcon /> 
-
             </IconButton>
           </Box>
           <Box marginTop={2}>
-            <ProgressBar totalPoints={getTotalPoints()} velocity={velocity} />
+            <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints} velocity={velocity} />
           </Box>
           <Stack marginTop={1} marginBottom={1}>
             <Grid container spacing={1}>
