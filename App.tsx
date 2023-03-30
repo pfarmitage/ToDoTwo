@@ -13,6 +13,7 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ProgressBar from './components/ProgressBar/ProgressBar';
 
 
 
@@ -195,32 +196,6 @@ function App() {
       },
     },
   });
-
-  const ProgressBar: React.FC<{ totalPoints: number; velocity: number }> = ({ totalPoints, velocity }) => {
-    const percentage = Math.min((totalPoints / velocity) * 100, 100);
-    const isOverCapacity = totalPoints > velocity;
-  
-    return (
-      <>
-        <Typography>Task Capacity for Today</Typography>
-          <Box border={1} borderColor="grey.500" borderRadius={5} width="100%" height={20}>
-            <Box
-              bgcolor={isOverCapacity ? 'error.main' : 'primary.main'}
-              borderRadius={5}
-              width={`${percentage}%`}
-              height="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-            <Typography color="white" fontWeight="bold">
-              {totalPoints} / {velocity}
-            </Typography>
-          </Box>
-        </Box>
-      </>
-    );
-  };
 
   return (
     <ThemeProvider theme={theme}>
