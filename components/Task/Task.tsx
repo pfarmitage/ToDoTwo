@@ -77,7 +77,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
           </Typography>  
           <Typography
             style={{cursor:'pointer'}}
-            title="Missing Description and Date."
+            title="Missing Description and Date"
             onClick={handleEditButtonClick}
           >
               {(!task.dueDate && !task.description) && (
@@ -88,7 +88,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
           </Typography>
           <Typography
             style={{cursor:'pointer'}}
-            title="Missing Description."
+            title="Missing Description"
             onClick={handleEditButtonClick}
           >
               {(!task.description && task.dueDate) && (
