@@ -74,7 +74,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
           {task.priority == 'normal' && (
             <IconButton
               size="small"
-              title="Normal"
+              title="Priority: Normal"
             >            
               <RemoveIcon fontSize="small" />
             </IconButton>
@@ -82,7 +82,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
           {task.priority == 'high' && (
             <IconButton
               size="small"
-              title="Normal"
+              title="Proiority: High"
             >            
               <KeyboardArrowUpIcon fontSize="small" />
             </IconButton>
@@ -90,7 +90,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
           {task.priority == 'urgent' && (
             <IconButton
               size="small"
-              title="Normal"
+              title="Priority: Urgent"
             >            
               <KeyboardDoubleArrowUpIcon fontSize="small" />
             </IconButton>
