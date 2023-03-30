@@ -6,7 +6,7 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
 import HelpIcon from '@mui/icons-material/Help';
 import CircleIcon from '@mui/icons-material/Circle';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Flag from '@mui/icons-material/Flag';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -75,6 +75,28 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
                 </IconButton>
               )}
           </Typography>  
+          <Typography
+            style={{cursor:'pointer'}}
+            title="Missing Description and Date."
+            onClick={handleEditButtonClick}
+          >
+              {(!task.dueDate && !task.description) && (
+                <>
+                  <Flag fontSize="small" color="error" />
+                </>
+              )}
+          </Typography>
+          <Typography
+            style={{cursor:'pointer'}}
+            title="Missing Description."
+            onClick={handleEditButtonClick}
+          >
+              {(!task.description && task.dueDate) && (
+                <>
+                  <Flag fontSize="small" color="warning" />
+                </>
+              )}
+          </Typography>    
         </Stack>
         <Stack direction="row" spacing={1} sx={{ margin: 0 }} >
           {task.priority == 'normal' && (

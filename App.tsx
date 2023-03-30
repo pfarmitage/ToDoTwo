@@ -7,6 +7,8 @@ import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
 import Planner from './components/Planner/Planner';
+import SettingsDialog from './components/SettingsDialog/SettingsDialog';
+
 import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
@@ -18,8 +20,20 @@ import ProgressBar from './components/ProgressBar/ProgressBar';
 
 
 function App() {
-  //Set Velocity
+  //Settings: Velocity
   const [velocity, setVelocity] = useState<number>(10);
+
+  // SettingsDialog
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+
+  const handleSettingsDialogClose = () => {
+    setSettingsDialogOpen(false);
+  };
+
+  const handleSettingsDialogSave = (newVelocity: number) => {
+    setVelocity(newVelocity);
+    setSettingsDialogOpen(false);
+  };
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -261,8 +275,16 @@ function App() {
             >
               <ListItemText primary="Plan All" />
             </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                setSettingsDialogOpen(true);
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Settings" />
+            </ListItem>
           </List>
-
         </Drawer>
         <Dialog open={isPlannerOpen} onClose={closePlanner}>
           <DialogTitle>{plannerTitle}</DialogTitle>
@@ -275,10 +297,15 @@ function App() {
           >
             <CloseIcon />
           </IconButton>
-          <Planner   taskLists={visibleTaskLists}
- tasks={tasks} onListChange={onListChange} title={plannerTitle}
-/>
+          <Planner   taskLists={visibleTaskLists} tasks={tasks} onListChange={onListChange} title={plannerTitle}
+          />
         </Dialog>
+        <SettingsDialog
+          open={settingsDialogOpen}
+          onClose={handleSettingsDialogClose}
+          onSave={handleSettingsDialogSave}
+          initialVelocity={velocity}
+        />
         <Container maxWidth="sm">
           
           <Box marginTop={2}>
@@ -306,7 +333,8 @@ function App() {
             </Dialog>
             )}
             <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
-              <AddIcon />
+              <AddIcon /> 
+
             </IconButton>
           </Box>
           <Box marginTop={2}>
