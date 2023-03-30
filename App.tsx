@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
+import Planner from './components/Planner/Planner';
 import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
@@ -88,6 +89,37 @@ function App() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  //Planner
+  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
+
+  const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
+    setVisibleTaskLists(newTaskLists);
+  };
+
+  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+
+  const openPlanner = (taskLists: TaskType['list'][]) => {
+    setVisibleTaskLists(taskLists);
+    setIsPlannerOpen(true);
+  };
+  
+  const closePlanner = () => {
+    setIsPlannerOpen(false);
+  };
+
+  const onListChange = (taskId: string, newList: TaskType['list']) => {
+    setTasks((prevTasks) => {
+      return prevTasks.map((task) => {
+        if (task.id === taskId) {
+          return { ...task, list: newList };
+        }
+        return task;
+      });
+    });
+  };
+
+  //Task Add/Update Modal
+  
   const handleTaskSubmit = (taskData: TaskType) => {
     if (!taskData.isNewTask) {
       // Update existing task
@@ -218,8 +250,30 @@ function App() {
                 <ListItemText primary={text} />
               </ListItem>
             ))}
+            <ListItem>
+            <button onClick={() => {openPlanner(['today', 'this week']); toggleSidebar(); }}>Plan Today</button>
+            </ListItem>
+            <ListItem>
+            <button onClick={() => {openPlanner(['this month', 'someday']); toggleSidebar(); }}>Plan This Week</button>
+            </ListItem>
+            <ListItem>
+            <button onClick={() => {openPlanner(['today', 'this week', 'this month', 'someday']); toggleSidebar(); }}>Plan All</button>
+            </ListItem>
           </List>
         </Drawer>
+        <Dialog open={isPlannerOpen} onClose={closePlanner}>
+          <DialogTitle>Plan My Day</DialogTitle>
+          <IconButton
+            style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
+            edge="end"
+            color="inherit"
+            onClick={() => setIsPlannerOpen(false)}
+            aria-label="close"
+          >
+            <CloseIcon />
+          </IconButton>
+          <Planner tasks={tasks} onListChange={onListChange} />
+        </Dialog>
         <Container maxWidth="sm">
           
           <Box marginTop={2}>
