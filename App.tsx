@@ -88,6 +88,16 @@ const [dateData, setDateData] = useState(dummyDateData);
   setIsCalendarVisible(!isCalendarVisible);
 };
 
+const [isDateListDialogOpen, setDateListDialogOpen] = useState(false);
+
+const openDateListDialog = () => {
+  setDateListDialogOpen(true);
+};
+
+const closeDateListDialog = () => {
+  setDateListDialogOpen(false);
+};
+
   // Dummy task for testing
   const dummyTask: TaskType = {
     id: '1',
@@ -307,7 +317,7 @@ const [dateData, setDateData] = useState(dummyDateData);
             <ListItem
               button
               onClick={() => {
-                toggleCalendar();
+                openDateListDialog();
                 toggleSidebar();
               }}
             >
@@ -354,7 +364,10 @@ const [dateData, setDateData] = useState(dummyDateData);
             </ListItem>
           </List>
         </Drawer>
-        {isCalendarVisible && <Calendar />}
+        <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
+          <DialogTitle>Date List</DialogTitle>
+          <DateList dateData={dateData} />
+        </Dialog>
         <Dialog open={isPlannerOpen} onClose={closePlanner}>
           <DialogTitle>{plannerTitle}</DialogTitle>
           <IconButton
