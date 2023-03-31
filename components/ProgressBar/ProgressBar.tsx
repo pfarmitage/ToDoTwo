@@ -1,89 +1,54 @@
 import React from 'react';
-import { Box, Typography, LinearProgress } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 
-interface ProgressBarProps {
-  totalPoints: number;
-  velocity: number;
-  completedPoints: number;
-}
-
-const StyledLinearProgress = styled(LinearProgress)`
+const GradientProgressBar = styled(Box)`
   height: 20px;
   border-radius: 5px;
+  background-image: linear-gradient(
+    90deg,
+    green,
+    green ${(props) => props.completed}%,
+    blue ${(props) => props.completed}%,
+    blue ${(props) => props.completed + props.remaining}%,
+    grey ${(props) => props.completed + props.remaining}%,
+    grey ${(props) => props.completed + props.remaining + props.underVelocity}%,
+    red ${(props) => props.completed + props.remaining + props.underVelocity}%,
+    red ${(props) => props.completed + props.remaining + props.underVelocity + props.overVelocity}%
+  );
 `;
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ totalPoints, velocity, completedPoints }) => {
-  //const completed = (totalPoints / velocity) * 100;
-  const completed = (completedPoints) * 100;
-  const remaining = ((totalPoints - completed) * 100);
-  const underVelocity = Math.max(velocity - totalPoints, 0);
-  const overVelocity = Math.max(totalPoints - velocity, 0);
-  console.log(totalPoints, velocity, completed, remaining, overVelocity, underVelocity)
-
+const ProgressBar = ({ totalPoints, velocity, completedPoints }) => {
+  const barLength = Math.max(velocity, totalPoints);
+  const completed = (completedPoints/barLength)*100;
+  const remaining = (Math.min(totalPoints-completedPoints,velocity-completedPoints))/barLength*100;
+  const underVelocity = (Math.max(velocity - totalPoints, 0)/barLength)*100;
+  const overVelocity = (Math.max(totalPoints - velocity, 0)/barLength)*100;
+console.log(barLength,completed,remaining,underVelocity,overVelocity)
   return (
     <Box>
       <Typography gutterBottom>Today's Progress</Typography>
-      <Box position="relative">
-        <StyledLinearProgress
-          variant="determinate"
-          value={completed}
-          color="success"
-        />
-        <StyledLinearProgress
-          variant="determinate"
-          value={remaining}
-          color="primary"
-          sx={{ position: 'absolute', left: 0, top: 0 }}
-        />
-        <StyledLinearProgress
-          variant="determinate"
-          value={underVelocity}
-          color="error"
-          sx={{ position: 'absolute', left: 0, top: 0 }}
-        />
-        <StyledLinearProgress
-          variant="determinate"
-          value={overVelocity}
-          color="error"
-          sx={{ position: 'absolute', left: 0, top: 0 }}
-        />
-      </Box>
+      <GradientProgressBar
+        completed={completed}
+        remaining={remaining}
+        underVelocity={underVelocity}
+        overVelocity={overVelocity}
+      />
       <Box display="flex" justifyContent="space-between">
         <Typography>0</Typography>
-        <Typography>{velocity}</Typography>
+        <Typography>{barLength}/{velocity}</Typography>
       </Box>
     </Box>
   );
 };
 
 export default ProgressBar;
+
+
 /*
-const ProgressBar: React.FC<{ totalPoints: number; velocity: number }> = ({ totalPoints, velocity }) => {
-  const percentage = Math.min((totalPoints / velocity) * 100, 100);
-  const isOverCapacity = totalPoints > velocity;
-
-  return (
-    <>
-      <Typography>Task Capacity for Today</Typography>
-        <Box border={1} borderColor="grey.500" borderRadius={5} width="100%" height={20}>
-          <Box
-            bgcolor={isOverCapacity ? 'error.main' : 'primary.main'}
-            borderRadius={5}
-            width={`${percentage}%`}
-            height="100%"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-          <Typography color="white" fontWeight="bold">
-            {totalPoints} / {velocity}
-          </Typography>
-        </Box>
-      </Box>
-    </>
-  );
-};
-
-export default ProgressBar;
-*/
+const barLength = '1000'//Math.max(velocity, totalPoints);
+  const completedPercentage = '50' //(completedPoints / barLength) * 100;
+  const remainingPercentage = '80'//((totalPoints - completedPoints) / barLength) * 100;
+  const underVelocityPercentage = '10'//(Math.max(velocity - totalPoints, 0) / barLength) * 100;
+  const overVelocityPercentage = '10'//(Math.max(totalPoints - velocity, 0) / barLength) * 100;
+  */

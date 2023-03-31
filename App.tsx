@@ -343,7 +343,7 @@ function App() {
             </IconButton>
           </Box>
           <Box marginTop={2}>
-            <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints} velocity={velocity} />
+            <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints()} velocity={velocity} />
           </Box>
           <Stack marginTop={1} marginBottom={1}>
             <Grid container spacing={1}>
