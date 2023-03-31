@@ -7,6 +7,7 @@ import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
 import Planner from './components/Planner/Planner';
+import Calendar from './components/Calendar/Calendar';
 import SettingsDialog from './components/SettingsDialog/SettingsDialog';
 
 import { TaskType } from './types';
@@ -16,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ProgressBar from './components/ProgressBar/ProgressBar';
+import VelocityChart from './components/VelocityChart/VelocityChart';
 
 
 
@@ -34,6 +36,57 @@ function App() {
     setVelocity(newVelocity);
     setSettingsDialogOpen(false);
   };
+
+  //Dates and Calendar
+  const dummyDateData = [
+    {
+      id: 1,
+      date: '2023-03-15',
+      velocity: 100,
+      totalPointsCompleted: 90,
+      tasksCompleted: [
+        { id: 1, title: 'Task 1', points: 40 },
+        { id: 2, title: 'Task 2', points: 50 },
+      ],
+    },
+    {
+      id: 2,
+      date: '2023-03-16',
+      velocity: 120,
+      totalPointsCompleted: 110,
+      tasksCompleted: [
+        { id: 3, title: 'Task 3', points: 60 },
+        { id: 4, title: 'Task 4', points: 50 },
+      ],
+    },
+    {
+      id: 3,
+      date: '2023-03-17',
+      velocity: 80,
+      totalPointsCompleted: 70,
+      tasksCompleted: [
+        { id: 5, title: 'Task 5', points: 30 },
+        { id: 6, title: 'Task 6', points: 40 },
+      ],
+    },
+    // Add more data as needed
+  ];
+
+const [dateData, setDateData] = useState(dummyDateData);
+
+  const scheduleDailyUpdate = () => {
+    // Implement the function to schedule a daily update
+  };
+
+  /*useEffect(() => {
+    scheduleDailyUpdate();
+  }, []);
+  */
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
+  const toggleCalendar = () => {
+  setIsCalendarVisible(!isCalendarVisible);
+};
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -254,6 +307,15 @@ function App() {
             <ListItem
               button
               onClick={() => {
+                toggleCalendar();
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Calendar" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
                 openPlanner(['today', 'this week']);
                 setPlannerTitle('Plan Today');
                 toggleSidebar();
@@ -292,6 +354,7 @@ function App() {
             </ListItem>
           </List>
         </Drawer>
+        {isCalendarVisible && <Calendar />}
         <Dialog open={isPlannerOpen} onClose={closePlanner}>
           <DialogTitle>{plannerTitle}</DialogTitle>
           <IconButton
@@ -371,6 +434,8 @@ function App() {
             velocity={velocity}
           />
         </Box>
+        <VelocityChart dateData={dateData} />
+
         </Container>
       </div>
     </ThemeProvider>
