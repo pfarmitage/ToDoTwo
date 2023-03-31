@@ -17,9 +17,9 @@ const ProgressBar = ({ totalPoints, velocity, completedPoints }) => {
   const overVelocity = (Math.max(Math.min(totalPoints - velocity, totalPoints - completedPoints), 0) / barLength) * 100;
 console.log(barLength,completed,remaining,underVelocity,overVelocity)
   return (
-    <Box>
+    <Box width="100%">
       <Typography gutterBottom>Today's Progress</Typography>
-      <Box position="relative" width="100%">
+      <Box position="relative" width="100%" padding={0.5}>
         <ProgressBarSection
           width={`${completed}%`}
           bgcolor="green"
@@ -44,9 +44,9 @@ console.log(barLength,completed,remaining,underVelocity,overVelocity)
           style={{ left: `${completed + remaining + underVelocity}%` }}
         />
       </Box>
-      <Box display="flex" justifyContent="space-between" >
+      <Box display="flex" width="100%" justifyContent="space-between" mt={1} >
         <Typography>0</Typography>
-        <Typography>{barLength}/{velocity}</Typography>
+        <Typography>{totalPoints}/{velocity}</Typography>
       </Box>
     </Box>
   );
