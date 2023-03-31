@@ -6,18 +6,34 @@ import AddIcon from '@mui/icons-material/Add';
 import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
+import Planner from './components/Planner/Planner';
+import SettingsDialog from './components/SettingsDialog/SettingsDialog';
+
 import { TaskType } from './types';
 import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ProgressBar from './components/ProgressBar/ProgressBar';
 
 
 
 function App() {
-  //Set Velocity
+  //Settings: Velocity
   const [velocity, setVelocity] = useState<number>(10);
+
+  // SettingsDialog
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+
+  const handleSettingsDialogClose = () => {
+    setSettingsDialogOpen(false);
+  };
+
+  const handleSettingsDialogSave = (newVelocity: number) => {
+    setVelocity(newVelocity);
+    setSettingsDialogOpen(false);
+  };
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -25,7 +41,7 @@ function App() {
     title: 'Test Task',
     description: 'This is a test task',
     dueDate: '2023-03-30',
-    sizing: 3,
+    sizing: 8,
     priority: 'normal',
     completed: false,
     list: 'today',
@@ -46,7 +62,7 @@ function App() {
     title: 'Test Task 3',
     description: 'This is a test task with urgent priority',
     dueDate: '2023-03-24',
-    sizing: 1,
+    sizing: 3,
     priority: 'urgent',
     completed: false,
     list: 'someday',
@@ -57,7 +73,7 @@ function App() {
     title: 'Future Task',
     description: 'This is a test task with normal priority',
     dueDate: '2024-03-24',
-    sizing: 1,
+    sizing: 5,
     priority: 'normal',
     completed: false,
     list: 'this week',
@@ -68,7 +84,7 @@ function App() {
     title: 'Past Task',
     description: 'This is a test task with normal priority',
     dueDate: '2022-03-24',
-    sizing: 1,
+    sizing: 3,
     priority: 'normal',
     completed: false,
     list: 'this month',
@@ -88,6 +104,39 @@ function App() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  //Planner
+  const [plannerTitle, setPlannerTitle] = useState('');
+
+  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
+
+  const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
+    setVisibleTaskLists(newTaskLists);
+  };
+
+  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+
+  const openPlanner = (taskLists: TaskType['list'][]) => {
+    setVisibleTaskLists(taskLists);
+    setIsPlannerOpen(true);
+  };
+  
+  const closePlanner = () => {
+    setIsPlannerOpen(false);
+  };
+
+  const onListChange = (taskId: string, newList: TaskType['list']) => {
+    setTasks((prevTasks) => {
+      return prevTasks.map((task) => {
+        if (task.id === taskId) {
+          return { ...task, list: newList };
+        }
+        return task;
+      });
+    });
+  };
+
+  //Task Add/Update Modal
+  
   const handleTaskSubmit = (taskData: TaskType) => {
     if (!taskData.isNewTask) {
       // Update existing task
@@ -119,9 +168,13 @@ function App() {
     );
   };
 
-  const toggleTaskFormVisibility = () => {
-    setIsTaskFormModalVisible(prevVisible => !prevVisible);
+  const toggleTaskFormVisibility = (reset: boolean = false) => {
+    setIsTaskFormModalVisible((prevVisible) => !prevVisible);
+    if (reset) {
+      setEditedTask(null);
+    }
   };
+  
 
   const handleListChange = (taskId: string, newList: TaskType['list']) => {
     setTasks((prevTasks) =>
@@ -137,6 +190,12 @@ function App() {
   const getTotalPoints = () => {
     return tasks
       .filter((task) => task.list === 'today')
+      .reduce((total, currentTask) => total + currentTask.sizing, 0);
+  };
+
+  const getCompletedPoints = () => {
+    return tasks
+      .filter((task) => task.list === 'today' && task.completed)
       .reduce((total, currentTask) => total + currentTask.sizing, 0);
   };
 
@@ -161,32 +220,6 @@ function App() {
       },
     },
   });
-
-  const ProgressBar: React.FC<{ totalPoints: number; velocity: number }> = ({ totalPoints, velocity }) => {
-    const percentage = Math.min((totalPoints / velocity) * 100, 100);
-    const isOverCapacity = totalPoints > velocity;
-  
-    return (
-      <>
-        <Typography>Task Capacity for Today</Typography>
-          <Box border={1} borderColor="grey.500" borderRadius={5} width="100%" height={20}>
-            <Box
-              bgcolor={isOverCapacity ? 'error.main' : 'primary.main'}
-              borderRadius={5}
-              width={`${percentage}%`}
-              height="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-            <Typography color="white" fontWeight="bold">
-              {totalPoints} / {velocity}
-            </Typography>
-          </Box>
-        </Box>
-      </>
-    );
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -213,13 +246,72 @@ function App() {
           onClose={toggleSidebar}
         >
           <List>
-            {['Board', 'Backlog'].map((text) => (
+            {['Board', 'Completed'].map((text) => (
               <ListItem button key={text}>
                 <ListItemText primary={text} />
               </ListItem>
             ))}
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week']);
+                setPlannerTitle('Plan Today');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan Today" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week', 'this month']);
+                setPlannerTitle('Plan This Week');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan This Week" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week', 'this month', 'someday']);
+                setPlannerTitle('Plan This Month');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan All" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                setSettingsDialogOpen(true);
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Settings" />
+            </ListItem>
           </List>
         </Drawer>
+        <Dialog open={isPlannerOpen} onClose={closePlanner}>
+          <DialogTitle>{plannerTitle}</DialogTitle>
+          <IconButton
+            style={{ position: 'absolute', top: 1, right: 5, zIndex: 1 }}
+            edge="end"
+            color="inherit"
+            onClick={() => setIsPlannerOpen(false)}
+            aria-label="close"
+          >
+            <CloseIcon />
+          </IconButton>
+          <Planner   taskLists={visibleTaskLists} tasks={tasks} onListChange={onListChange} title={plannerTitle}
+          />
+        </Dialog>
+        <SettingsDialog
+          open={settingsDialogOpen}
+          onClose={handleSettingsDialogClose}
+          onSave={handleSettingsDialogSave}
+          initialVelocity={velocity}
+        />
         <Container maxWidth="sm">
           
           <Box marginTop={2}>
@@ -238,18 +330,20 @@ function App() {
                 </IconButton>
               </DialogTitle>
               <DialogContent>
-                <TaskForm onSubmit={handleTaskSubmit}
+                <TaskForm   
+                key={editedTask ? editedTask.id : uuidv4()} 
+                onSubmit={handleTaskSubmit}
                 onCancel={handleModalClose}
                 initialTask={editedTask}/>
               </DialogContent>
             </Dialog>
             )}
-            <IconButton onClick={toggleTaskFormVisibility} color="primary">
-              <AddIcon />
+            <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
+              <AddIcon /> 
             </IconButton>
           </Box>
           <Box marginTop={2}>
-            <ProgressBar totalPoints={getTotalPoints()} velocity={velocity} />
+            <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints()} velocity={velocity} />
           </Box>
           <Stack marginTop={1} marginBottom={1}>
             <Grid container spacing={1}>

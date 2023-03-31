@@ -6,7 +6,7 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
 import HelpIcon from '@mui/icons-material/Help';
 import CircleIcon from '@mui/icons-material/Circle';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Flag from '@mui/icons-material/Flag';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -31,9 +31,11 @@ interface TaskProps {
   onEditTask: (task: Task) => void;
   totalPoints: number;
   velocity: number;
+  hideControls?: boolean;
 }
 
-const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onEditTask, totalPoints, velocity }) => {
+const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, totalPoints, velocity,   hideControls = false,
+}) => {
   const handleCompletionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onCompletionChange(task.id, event.target.checked);
   };
@@ -47,6 +49,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
     <Card>
       <CardContent>
         <Stack direction="row">  
+        {!hideControls && (
           <FormControlLabel
             control={
               <Checkbox
@@ -56,6 +59,7 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
             }
             label={}
             />
+          )}
           <Typography
               className={task.completed ? 'completed title' : ''}
               onClick={handleEditButtonClick}
@@ -63,12 +67,36 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
               title="Click to View/Edit"
             >
               {task.title}
-              <IconButton
-                size="small"
-              >            
-              <EditIcon fontSize="small" />
-              </IconButton>
+              {!hideControls && (
+                <IconButton
+                  size="small"
+                >            
+                <EditIcon fontSize="small" />
+                </IconButton>
+              )}
           </Typography>  
+          <Typography
+            style={{cursor:'pointer'}}
+            title="Missing Description and Date"
+            onClick={handleEditButtonClick}
+          >
+              {(!task.dueDate && !task.description) && (
+                <>
+                  <Flag fontSize="small" color="error" />
+                </>
+              )}
+          </Typography>
+          <Typography
+            style={{cursor:'pointer'}}
+            title="Missing Description"
+            onClick={handleEditButtonClick}
+          >
+              {(!task.description && task.dueDate) && (
+                <>
+                  <Flag fontSize="small" color="warning" />
+                </>
+              )}
+          </Typography>    
         </Stack>
         <Stack direction="row" spacing={1} sx={{ margin: 0 }} >
           {task.priority == 'normal' && (
