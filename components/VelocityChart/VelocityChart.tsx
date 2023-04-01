@@ -6,7 +6,7 @@ const VelocityChart = ({ dateData }) => {
   const recentDates = dateData.slice(-10).reverse();
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={150}>
       <BarChart data={recentDates}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />

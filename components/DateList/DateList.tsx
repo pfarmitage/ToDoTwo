@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Card, CardContent } from '@mui/material';
+import VelocityChart from '../VelocityChart/VelocityChart';
 
 const DateCard = ({ date, velocity, totalPointsCompleted, tasksCompleted }) => {
   return (
@@ -19,6 +20,7 @@ const DateList = ({ dateData }) => {
 
   return (
     <Box>
+      <VelocityChart dateData={dateData} />
       {sortedDateData.map((dateItem) => (
         <Box key={dateItem.id} mb={2}>
           <DateCard {...dateItem} />

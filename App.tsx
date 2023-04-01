@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,7 +17,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ProgressBar from './components/ProgressBar/ProgressBar';
-import VelocityChart from './components/VelocityChart/VelocityChart';
 
 
 
@@ -36,43 +35,6 @@ function App() {
     setVelocity(newVelocity);
     setSettingsDialogOpen(false);
   };
-
-  //Dates and Calendar
-  const dummyDateData = [
-    {
-      id: 1,
-      date: '2023-03-15',
-      velocity: 100,
-      totalPointsCompleted: 90,
-      tasksCompleted: [
-        { id: 1, title: 'Task 1', points: 40 },
-        { id: 2, title: 'Task 2', points: 50 },
-      ],
-    },
-    {
-      id: 2,
-      date: '2023-03-16',
-      velocity: 120,
-      totalPointsCompleted: 110,
-      tasksCompleted: [
-        { id: 3, title: 'Task 3', points: 60 },
-        { id: 4, title: 'Task 4', points: 50 },
-      ],
-    },
-    {
-      id: 3,
-      date: '2023-03-17',
-      velocity: 80,
-      totalPointsCompleted: 70,
-      tasksCompleted: [
-        { id: 5, title: 'Task 5', points: 30 },
-        { id: 6, title: 'Task 6', points: 40 },
-      ],
-    },
-    // Add more data as needed
-  ];
-
-const [dateData, setDateData] = useState(dummyDateData);
 
   const scheduleDailyUpdate = () => {
     // Implement the function to schedule a daily update
@@ -199,7 +161,6 @@ const closeDateListDialog = () => {
   };
 
   //Task Add/Update Modal
-  
   const handleTaskSubmit = (taskData: TaskType) => {
     if (!taskData.isNewTask) {
       // Update existing task
@@ -262,6 +223,79 @@ const closeDateListDialog = () => {
       .reduce((total, currentTask) => total + currentTask.sizing, 0);
   };
 
+//Dates and Completed Lists
+const dummyDateData = [
+  {
+    id: 1,
+    date: '2023-03-15',
+    velocity: 100,
+    totalPointsCompleted: 90,
+    tasksCompleted: [
+      { id: 1, title: 'Task 1', points: 40 },
+      { id: 2, title: 'Task 2', points: 50 },
+    ],
+  },
+  {
+    id: 2,
+    date: '2023-03-16',
+    velocity: 120,
+    totalPointsCompleted: 110,
+    tasksCompleted: [
+      { id: 3, title: 'Task 3', points: 60 },
+      { id: 4, title: 'Task 4', points: 50 },
+    ],
+  },
+  {
+    id: 3,
+    date: '2023-03-17',
+    velocity: 80,
+    totalPointsCompleted: 70,
+    tasksCompleted: [
+      { id: 5, title: 'Task 5', points: 30 },
+      { id: 6, title: 'Task 6', points: 40 },
+    ],
+  },
+  // Add more data as needed
+];
+
+const [dateData, setDateData] = useState(dummyDateData);
+
+//Calculate the time until midnight
+const getTimeUntilMidnight = () => {
+const now = new Date();
+const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+return tomorrow.getTime() - now.getTime();
+};
+
+//Move completed tasks
+const moveCompletedTasks = () => {
+// 1. Filter out completed tasks
+const completedTasks = tasks.filter(task => task.completed);
+
+// 2. Create a Date record if necessary and get its id
+const dateId = createOrUpdateDateRecord(completedTasks);
+
+// 3. Assign the Date record id to the completed tasks
+completedTasks.forEach(task => task.dateId = dateId);
+
+// 4. Update the tasks state
+setTasks([...tasks]);
+};
+
+//Find a date record if it does not already exist
+const createOrUpdateDateRecord = (completedTasks) => {
+// Your implementation here
+};
+
+useEffect(() => {
+const timeUntilMidnight = getTimeUntilMidnight();
+const timer = setTimeout(moveCompletedTasks, timeUntilMidnight);
+
+return () => {
+  clearTimeout(timer);
+};
+}, [tasks]);
+
   const theme = createTheme({
     palette: {
       text: {
@@ -316,7 +350,7 @@ const closeDateListDialog = () => {
                 toggleSidebar();
               }}
             >
-              <ListItemText primary="Complete" />
+              <ListItemText primary="Velocity" />
             </ListItem>
             <ListItem
               button
@@ -360,7 +394,7 @@ const closeDateListDialog = () => {
           </List>
         </Drawer>
         <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
-          <DialogTitle>Complete</DialogTitle>
+          <DialogTitle>Velocity</DialogTitle>
           <DateList dateData={dateData} />
         </Dialog>
         <Dialog open={isPlannerOpen} onClose={closePlanner}>
@@ -442,7 +476,7 @@ const closeDateListDialog = () => {
             velocity={velocity}
           />
         </Box>
-        <VelocityChart dateData={dateData} />
+        
 
         </Container>
       </div>

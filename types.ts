@@ -8,5 +8,6 @@ export interface TaskType {
   tags: string[];
   completed: boolean;
   list: 'today' | 'this week' | 'this month' | 'someday';    
+  dateId: string | null; // Add this line
   isNewTask?: boolean;
 }
