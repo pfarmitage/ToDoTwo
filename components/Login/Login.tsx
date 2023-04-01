@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import { TextField, Button, Typography } from '@mui/material';
 
 const Login = () => {
@@ -37,6 +38,8 @@ const Login = () => {
       <Button onClick={handleLogin} color="primary" variant="contained">
         Login
       </Button>
+      <Link to="/signup">Sign up</Link>
+
     </div>
   );
 };
