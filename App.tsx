@@ -7,7 +7,7 @@ import TaskForm from './components/TaskForm/TaskForm';
 import Task from './components/Task/Task';
 import TaskList from './components/TaskList/TaskList';
 import Planner from './components/Planner/Planner';
-import Calendar from './components/Calendar/Calendar';
+import DateList from './components/DateList/DateList';
 import SettingsDialog from './components/SettingsDialog/SettingsDialog';
 
 import { TaskType } from './types';
@@ -309,11 +309,6 @@ const closeDateListDialog = () => {
           onClose={toggleSidebar}
         >
           <List>
-            {['Board', 'Completed'].map((text) => (
-              <ListItem button key={text}>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
             <ListItem
               button
               onClick={() => {
@@ -321,7 +316,7 @@ const closeDateListDialog = () => {
                 toggleSidebar();
               }}
             >
-              <ListItemText primary="Calendar" />
+              <ListItemText primary="Complete" />
             </ListItem>
             <ListItem
               button
@@ -365,7 +360,7 @@ const closeDateListDialog = () => {
           </List>
         </Drawer>
         <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
-          <DialogTitle>Date List</DialogTitle>
+          <DialogTitle>Complete</DialogTitle>
           <DateList dateData={dateData} />
         </Dialog>
         <Dialog open={isPlannerOpen} onClose={closePlanner}>

@@ -23,14 +23,14 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, onSave, 
       <DialogTitle>
         Settings
         <IconButton
-            style={{ position: 'absolute', top: 1, right: 5, zIndex: 1 }}
-            edge="end"
-            color="inherit"
-            onClick={() => setIsPlannerOpen(false)}
-            aria-label="close"
-          >
-            <CloseIcon />
-          </IconButton>
+          style={{ position: 'absolute', top: 1, right: 5, zIndex: 1 }}
+          edge="end"
+          color="inherit"
+          onClick={onClose} // change this line
+          aria-label="close"
+        >
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <DialogContent>
         <TextField
