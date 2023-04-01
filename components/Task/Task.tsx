@@ -11,8 +11,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import { TaskType } from '../types';
 
-interface Task {
+/*interface Task {
   id: string;
   title: string;
   description: string;
@@ -22,13 +23,13 @@ interface Task {
   completed: boolean;
   list: 'today' | 'this week' | 'this month' | 'someday';
   isNewTask?: boolean;
-}
+}*/
 
 interface TaskProps {
-  task: Task;
+  task: TaskType;
   onCompletionChange: (taskId: string, completed: boolean) => void;
   onListChange: (taskId: string, newList: Task['list']) => void;
-  onEditTask: (task: Task) => void;
+  onEditTask: (task: TaskType) => void;
   totalPoints: number;
   velocity: number;
   hideControls?: boolean;
