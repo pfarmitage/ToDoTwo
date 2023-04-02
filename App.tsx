@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Redirect, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login';
 import Signup from './components/Signup/Signup';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -326,186 +326,188 @@ return () => {
   });
 
   return (
-    <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <Router>
-      <Routes>
-        {user ? (
-          <Route path="/" exact>
-                
-                <AppBar position="static">
-                  <Toolbar>
-                  <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={toggleSidebar}
-                    edge="start"
-                  >
-                  <MenuIcon />
-                  </IconButton>
-                  <Typography variant="h6" component="div">
-                      To Do
-                    </Typography>
-                  </Toolbar>
-                </AppBar>
-                <Drawer
-                  anchor="left"
-                  open={isSidebarOpen}
-                  onClose={toggleSidebar}
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <Routes>
+            {user ? (
+              <Route path="/" element={<AppContent />} />
+            ) : (
+              <>
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="*" element={<Navigate to="/login" />} />
+              </>
+            )}
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
+  return (
+    <div>
+        <AppBar position="static">
+          <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleSidebar}
+            edge="start"
+          >
+          <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div">
+              To Do
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          anchor="left"
+          open={isSidebarOpen}
+          onClose={toggleSidebar}
+        >
+          <List>
+            <ListItem
+              button
+              onClick={() => {
+                openDateListDialog();
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Velocity" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week']);
+                setPlannerTitle('Plan Today');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan Today" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week', 'this month']);
+                setPlannerTitle('Plan This Week');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan This Week" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['today', 'this week', 'this month', 'someday']);
+                setPlannerTitle('Plan This Month');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Plan All" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                setSettingsDialogOpen(true);
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="Settings" />
+            </ListItem>
+          </List>
+        </Drawer>
+        <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
+          <DialogTitle>Velocity</DialogTitle>
+          <DateList dateData={dateData} />
+        </Dialog>
+        <Dialog open={isPlannerOpen} onClose={closePlanner}>
+          <DialogTitle>{plannerTitle}</DialogTitle>
+          <IconButton
+            style={{ position: 'absolute', top: 1, right: 5, zIndex: 1 }}
+            edge="end"
+            color="inherit"
+            onClick={() => setIsPlannerOpen(false)}
+            aria-label="close"
+          >
+            <CloseIcon />
+          </IconButton>
+          <Planner   taskLists={visibleTaskLists} tasks={tasks} onListChange={onListChange} title={plannerTitle}
+          />
+        </Dialog>
+        <SettingsDialog
+          open={settingsDialogOpen}
+          onClose={handleSettingsDialogClose}
+          onSave={handleSettingsDialogSave}
+          initialVelocity={velocity}
+        />
+        <Container maxWidth="sm">
+          
+          <Box marginTop={2}>
+          {isTaskFormModalOpen && (
+            <Dialog open={isTaskFormModalOpen} onClose={toggleTaskFormVisibility} maxWidth="sm" fullWidth>
+              <DialogTitle>
+                {editedTask ? 'Edit Task' : 'Add Task'}
+                <IconButton
+                  edge="end"
+                  color="inherit"
+                  onClick={handleModalClose}
+                  aria-label="close"
+                  sx={{ position: 'absolute', right: 8, top: 8 }}
                 >
-                  <List>
-                    <ListItem
-                      button
-                      onClick={() => {
-                        openDateListDialog();
-                        toggleSidebar();
-                      }}
-                    >
-                      <ListItemText primary="Velocity" />
-                    </ListItem>
-                    <ListItem
-                      button
-                      onClick={() => {
-                        openPlanner(['today', 'this week']);
-                        setPlannerTitle('Plan Today');
-                        toggleSidebar();
-                      }}
-                    >
-                      <ListItemText primary="Plan Today" />
-                    </ListItem>
-                    <ListItem
-                      button
-                      onClick={() => {
-                        openPlanner(['today', 'this week', 'this month']);
-                        setPlannerTitle('Plan This Week');
-                        toggleSidebar();
-                      }}
-                    >
-                      <ListItemText primary="Plan This Week" />
-                    </ListItem>
-                    <ListItem
-                      button
-                      onClick={() => {
-                        openPlanner(['today', 'this week', 'this month', 'someday']);
-                        setPlannerTitle('Plan This Month');
-                        toggleSidebar();
-                      }}
-                    >
-                      <ListItemText primary="Plan All" />
-                    </ListItem>
-                    <ListItem
-                      button
-                      onClick={() => {
-                        setSettingsDialogOpen(true);
-                        toggleSidebar();
-                      }}
-                    >
-                      <ListItemText primary="Settings" />
-                    </ListItem>
-                  </List>
-                </Drawer>
-                <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
-                  <DialogTitle>Velocity</DialogTitle>
-                  <DateList dateData={dateData} />
-                </Dialog>
-                <Dialog open={isPlannerOpen} onClose={closePlanner}>
-                  <DialogTitle>{plannerTitle}</DialogTitle>
-                  <IconButton
-                    style={{ position: 'absolute', top: 1, right: 5, zIndex: 1 }}
-                    edge="end"
-                    color="inherit"
-                    onClick={() => setIsPlannerOpen(false)}
-                    aria-label="close"
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <Planner   taskLists={visibleTaskLists} tasks={tasks} onListChange={onListChange} title={plannerTitle}
-                  />
-                </Dialog>
-                <SettingsDialog
-                  open={settingsDialogOpen}
-                  onClose={handleSettingsDialogClose}
-                  onSave={handleSettingsDialogSave}
-                  initialVelocity={velocity}
-                />
-                <Container maxWidth="sm">
-                  
-                  <Box marginTop={2}>
-                  {isTaskFormModalOpen && (
-                    <Dialog open={isTaskFormModalOpen} onClose={toggleTaskFormVisibility} maxWidth="sm" fullWidth>
-                      <DialogTitle>
-                        {editedTask ? 'Edit Task' : 'Add Task'}
-                        <IconButton
-                          edge="end"
-                          color="inherit"
-                          onClick={handleModalClose}
-                          aria-label="close"
-                          sx={{ position: 'absolute', right: 8, top: 8 }}
-                        >
-                          <CloseIcon />
-                        </IconButton>
-                      </DialogTitle>
-                      <DialogContent>
-                        <TaskForm   
-                        key={editedTask ? editedTask.id : uuidv4()} 
-                        onSubmit={handleTaskSubmit}
-                        onCancel={handleModalClose}
-                        initialTask={editedTask}/>
-                      </DialogContent>
-                    </Dialog>
-                    )}
-                    <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
-                      <AddIcon /> 
-                    </IconButton>
-                  </Box>
-                  <Box marginTop={2}>
-                    <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints()} velocity={velocity} />
-                  </Box>
-                  <Stack marginTop={1} marginBottom={1}>
-                    <Grid container spacing={1}>
-                      {['today', 'this week', 'this month', 'someday'].map(
-                        (list) => (
-                          <Grid item key={list}>
-                            <TaskFilterButton
-                              label={list}
-                              selected={selectedList === list}
-                              onSelect={(label) => setSelectedList(label as any)}
-                            />
-                          </Grid>
-                        ),
-                      )}
-                    </Grid>
-                  </Stack>
-                <Box marginTop={1}>
-                  <TaskList
-                    tasks={tasks}
-                    selectedList={selectedList}
-                    onCompletionChange={handleCompletionChange}
-                    onListChange={handleListChange}
-                    onEditTask={handleEditTask}
-                    totalPoints={getTotalPoints(tasks)}
-                    velocity={velocity}
-                  />
-                </Box>
-                
+                  <CloseIcon />
+                </IconButton>
+              </DialogTitle>
+              <DialogContent>
+                <TaskForm   
+                key={editedTask ? editedTask.id : uuidv4()} 
+                onSubmit={handleTaskSubmit}
+                onCancel={handleModalClose}
+                initialTask={editedTask}/>
+              </DialogContent>
+            </Dialog>
+            )}
+            <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
+              <AddIcon /> 
+            </IconButton>
+          </Box>
+          <Box marginTop={2}>
+            <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints()} velocity={velocity} />
+          </Box>
+          <Stack marginTop={1} marginBottom={1}>
+            <Grid container spacing={1}>
+              {['today', 'this week', 'this month', 'someday'].map(
+                (list) => (
+                  <Grid item key={list}>
+                    <TaskFilterButton
+                      label={list}
+                      selected={selectedList === list}
+                      onSelect={(label) => setSelectedList(label as any)}
+                    />
+                  </Grid>
+                ),
+              )}
+            </Grid>
+          </Stack>
+        <Box marginTop={1}>
+          <TaskList
+            tasks={tasks}
+            selectedList={selectedList}
+            onCompletionChange={handleCompletionChange}
+            onListChange={handleListChange}
+            onEditTask={handleEditTask}
+            totalPoints={getTotalPoints(tasks)}
+            velocity={velocity}
+          />
+        </Box>
+        
 
-                </Container>
-
-
-
-
-
-                </Route>
-          ) : (
-            <>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="*" element={<Navigate to="/signup" />} />
-            </>
-          )}
-        </Routes>
-      </Router>
-    </ThemeProvider>
+        </Container>
+      </div>
   );
 }
 
