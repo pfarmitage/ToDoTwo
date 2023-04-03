@@ -568,7 +568,7 @@ const dummyDateData = [
                   setSelectedTabIndex(newValue);
                   setSelectedList(taskLists[newValue]);
                 }}
-                fullWidth
+                fullwidth="true"
                 centered
               >
                 {['today', 'this week', 'this month', 'someday'].map((list, index) => (
