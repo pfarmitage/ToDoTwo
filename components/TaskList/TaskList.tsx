@@ -4,13 +4,14 @@ import Task from '../Task/Task';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { firestore, doc, updateDoc } from '../../firebase';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db as firestore } from '../../firebase';
 
 interface TaskListProps {
   tasks: TaskType[];
   selectedList: TaskType['list'];
   onCompletionChange: (taskId: string, completed: boolean) => void;
-  onListChange: (taskId: string, newList: TaskType['list']) => void;
+  //handleListChange: (taskId: string, newList: TaskType['list']) => void;
   onEditTask: (task: TaskType) => void;
   totalPoints: number;
   velocity: number;
@@ -21,13 +22,21 @@ const updateTaskInFirestore = async (taskId: string, updateData: Partial<TaskTyp
   try {
     const taskRef = doc(firestore, 'tasks', taskId);
     await updateDoc(taskRef, updateData);
-    console.log('Task updated in Firestore');
+    console.log('Task updated in Firestore:', taskId, updateData);
   } catch (error) {
-    console.error('Error updating task in Firestore:', error);
+    console.error('Error updating task in Firestore:', taskId, updateData, error);
   }
 };
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange, onEditTask, hideControls = false }) => {
+
+const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  selectedList,
+  onCompletionChange,
+  //handleListChange, 
+  onEditTask,
+  hideControls = false,
+}) => {
   const filteredTasks = tasks.filter((task) => task.list === selectedList);
 
   const sortedTasks = filteredTasks.sort((a, b) => {
@@ -56,9 +65,9 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionCh
     return 0;
   });
 
-  const handleListChange = async (taskId: string, newList: TaskType['list']) => {
+  const handleListChangeInternal = async (taskId: string, newList: TaskType['list']) => {
     await updateTaskInFirestore(taskId, { list: newList });
-    onListChange(taskId, newList);
+    //handleListChange(taskId, newList);
   };
 
   return (
@@ -68,7 +77,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionCh
           key={task.id}
           task={task}
           onCompletionChange={onCompletionChange}
-          onListChange={handleListChange}
+          onListChange={handleListChangeInternal}
           onEditTask={onEditTask}
           hideControls={hideControls}
         />

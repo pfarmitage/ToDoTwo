@@ -32,7 +32,7 @@ const useFetchTasks = () => {
     };
   }, []);
 
-  return { tasks, loading };
+  return { tasks, setTasks, loading };
 };
 
 export default useFetchTasks;

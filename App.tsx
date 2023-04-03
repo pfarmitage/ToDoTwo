@@ -84,7 +84,7 @@ function App() {
 function AppContent() {
 
   //Set initial tasks state
-  const { tasks, loading } = useFetchTasks();
+  const { tasks, setTasks, loading } = useFetchTasks();
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -509,6 +509,7 @@ return () => {
               onCompletionChange={handleCompletionChange}
               onListChange={handleListChange}
               onEditTask={handleEditTask}
+              handleListChange={handleListChange}
               totalPoints={getTotalPoints(tasks)}
               velocity={velocity}
             />

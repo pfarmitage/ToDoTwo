@@ -51,15 +51,11 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
       <CardContent>
         <Stack direction="row">  
         {!hideControls && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={task.completed}
-                onChange={handleCompletionChange}
-              />
-            }
-            label={}
-            />
+          <Checkbox
+          checked={task.completed}
+          onChange={handleCompletionChange}
+          sx={{ marginRight: 1 }}
+          />
           )}
           <Typography
               className={task.completed ? 'completed title' : ''}
