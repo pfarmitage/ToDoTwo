@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
-
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { firestore, doc, updateDoc } from '../../firebase';
 
 interface TaskListProps {
   tasks: TaskType[];
@@ -14,9 +17,18 @@ interface TaskListProps {
   hideControls?: boolean;
 }
 
+const updateTaskInFirestore = async (taskId: string, updateData: Partial<TaskType>) => {
+  try {
+    const taskRef = doc(firestore, 'tasks', taskId);
+    await updateDoc(taskRef, updateData);
+    console.log('Task updated in Firestore');
+  } catch (error) {
+    console.error('Error updating task in Firestore:', error);
+  }
+};
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange, onEditTask,  hideControls = false}) => {
-  const filteredTasks = tasks.filter(task => task.list === selectedList);
+const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionChange, onListChange, onEditTask, hideControls = false }) => {
+  const filteredTasks = tasks.filter((task) => task.list === selectedList);
 
   const sortedTasks = filteredTasks.sort((a, b) => {
     const priorityOrder: Record<string, number> = {
@@ -44,10 +56,22 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, selectedList, onCompletionCh
     return 0;
   });
 
+  const handleListChange = async (taskId: string, newList: TaskType['list']) => {
+    await updateTaskInFirestore(taskId, { list: newList });
+    onListChange(taskId, newList);
+  };
+
   return (
     <div>
-      {sortedTasks.map(task => (
-        <Task key={task.id} task={task} onCompletionChange={onCompletionChange} onListChange={onListChange} onEditTask={onEditTask} hideControls={hideControls} />
+      {sortedTasks.map((task) => (
+        <Task
+          key={task.id}
+          task={task}
+          onCompletionChange={onCompletionChange}
+          onListChange={handleListChange}
+          onEditTask={onEditTask}
+          hideControls={hideControls}
+        />
       ))}
     </div>
   );

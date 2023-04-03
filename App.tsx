@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login';
 import Signup from './components/Signup/Signup';
-import { AuthProvider, useAuth } from './AuthContext';
+import ProtectedRoute from './ProtectedRoute';
+import { auth } from './firebase';
+import { firestore } from './firebase';
+import useFetchTasks from './useFetchTasks';
+
+
+import { useAuth } from './AuthContext';
 import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -26,46 +32,59 @@ import ProgressBar from './components/ProgressBar/ProgressBar';
 
 function App() {
   //Authentication
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  //Settings: Velocity
-  const [velocity, setVelocity] = useState<number>(10);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // SettingsDialog
-  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  useEffect(() => {
+    const unregisterAuthObserver = auth.onAuthStateChanged((user) => {
+      setIsAuthenticated(!!user);
+    });
 
-  const handleSettingsDialogClose = () => {
-    setSettingsDialogOpen(false);
-  };
-
-  const handleSettingsDialogSave = (newVelocity: number) => {
-    setVelocity(newVelocity);
-    setSettingsDialogOpen(false);
-  };
-
-  const scheduleDailyUpdate = () => {
-    // Implement the function to schedule a daily update
-  };
-
-  /*useEffect(() => {
-    scheduleDailyUpdate();
+    return () => unregisterAuthObserver();
   }, []);
-  */
-  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
-  const toggleCalendar = () => {
-  setIsCalendarVisible(!isCalendarVisible);
-};
+  const theme = createTheme({
+    palette: {
+      text: {
+        primary: '#000000',
+      },
+    },
+    components: {
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            '&.completed': {
+              color: 'gray',
+            },
+            '&.title.completed': {
+              textDecoration: 'line-through',
+            },
+          },
+        },
+      },
+    },
+  });
 
-const [isDateListDialogOpen, setDateListDialogOpen] = useState(false);
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          <Route path="/" element={user ? <AppContent /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
+}
 
-const openDateListDialog = () => {
-  setDateListDialogOpen(true);
-};
+function AppContent() {
 
-const closeDateListDialog = () => {
-  setDateListDialogOpen(false);
-};
+  //Set initial tasks state
+  const { tasks, loading } = useFetchTasks();
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -122,115 +141,7 @@ const closeDateListDialog = () => {
     list: 'this month',
   };
 
-  //Set initial tasks state
-  const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
-
-  //Set initial selected List state
-  const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' | 'completed' >('today');
-
-  const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
-
-  //Sidebar
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  //Planner
-  const [plannerTitle, setPlannerTitle] = useState('');
-
-  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
-
-  const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
-    setVisibleTaskLists(newTaskLists);
-  };
-
-  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
-
-  const openPlanner = (taskLists: TaskType['list'][]) => {
-    setVisibleTaskLists(taskLists);
-    setIsPlannerOpen(true);
-  };
-  
-  const closePlanner = () => {
-    setIsPlannerOpen(false);
-  };
-
-  const onListChange = (taskId: string, newList: TaskType['list']) => {
-    setTasks((prevTasks) => {
-      return prevTasks.map((task) => {
-        if (task.id === taskId) {
-          return { ...task, list: newList };
-        }
-        return task;
-      });
-    });
-  };
-
-  //Task Add/Update Modal
-  const handleTaskSubmit = (taskData: TaskType) => {
-    if (!taskData.isNewTask) {
-      // Update existing task
-      const updatedTasks = tasks.map((task) => (task.id === taskData.id ? taskData : task));
-      setTasks(updatedTasks);
-    } else {
-      // Create new task
-      setTasks([...tasks, taskData]);
-    }
-    setEditedTask(null);
-    toggleTaskFormVisibility();
-  };
-
-  const handleModalClose = () => {
-    setEditedTask(null);
-    toggleTaskFormVisibility();
-  };
-
-  const handleEditTask = (task: TaskType) => {
-    setEditedTask(task);
-    toggleTaskFormVisibility();
-  };
-
-  const handleCompletionChange = (taskId: string, isCompleted: boolean) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed: isCompleted } : task,
-      ),
-    );
-  };
-
-  const toggleTaskFormVisibility = (reset: boolean = false) => {
-    setIsTaskFormModalVisible((prevVisible) => !prevVisible);
-    if (reset) {
-      setEditedTask(null);
-    }
-  };
-  
-
-  const handleListChange = (taskId: string, newList: TaskType['list']) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
-    );
-  };
-
-  
-
-  const [editedTask, setEditedTask] = useState<TaskType | null>(null);
-
-  //Calculate the cumulative total points of tasks in the 'today' list
-  const getTotalPoints = () => {
-    return tasks
-      .filter((task) => task.list === 'today')
-      .reduce((total, currentTask) => total + currentTask.sizing, 0);
-  };
-
-  const getCompletedPoints = () => {
-    return tasks
-      .filter((task) => task.list === 'today' && task.completed)
-      .reduce((total, currentTask) => total + currentTask.sizing, 0);
-  };
-
-//Dates and Completed Lists
+  //Dates and Completed Lists
 const dummyDateData = [
   {
     id: 1,
@@ -265,14 +176,156 @@ const dummyDateData = [
   // Add more data as needed
 ];
 
+  //Settings: Velocity
+  const [velocity, setVelocity] = useState<number>(10);
+
+  // SettingsDialog
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+
+  const handleSettingsDialogClose = () => {
+    setSettingsDialogOpen(false);
+  };
+
+  const handleSettingsDialogSave = (newVelocity: number) => {
+    setVelocity(newVelocity);
+    setSettingsDialogOpen(false);
+  };
+
+  //Sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
+  const toggleCalendar = () => {
+  setIsCalendarVisible(!isCalendarVisible);
+};
+
+const [isDateListDialogOpen, setDateListDialogOpen] = useState(false);
+
+const openDateListDialog = () => {
+  setDateListDialogOpen(true);
+};
+
+const closeDateListDialog = () => {
+  setDateListDialogOpen(false);
+};
+
+
+
+//const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
+
+//Set initial selected List state
+const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' | 'completed' >('today');
+
+const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
+
+//Dummy Dates
 const [dateData, setDateData] = useState(dummyDateData);
+
+//Planner
+const [plannerTitle, setPlannerTitle] = useState('');
+
+const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
+
+const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
+  setVisibleTaskLists(newTaskLists);
+};
+
+const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+
+const openPlanner = (taskLists: TaskType['list'][]) => {
+  setVisibleTaskLists(taskLists);
+  setIsPlannerOpen(true);
+};
+
+const closePlanner = () => {
+  setIsPlannerOpen(false);
+};
+
+const onListChange = (taskId: string, newList: TaskType['list']) => {
+  setTasks((prevTasks) => {
+    return prevTasks.map((task) => {
+      if (task.id === taskId) {
+        return { ...task, list: newList };
+      }
+      return task;
+    });
+  });
+};
+
+//Task Add/Update Modal
+const handleTaskSubmit = (taskData: TaskType) => {
+  if (!taskData.isNewTask) {
+    // Update existing task
+    const updatedTasks = tasks.map((task) => (task.id === taskData.id ? taskData : task));
+    setTasks(updatedTasks);
+  } else {
+    // Create new task
+    setTasks([...tasks, taskData]);
+  }
+  setEditedTask(null);
+  toggleTaskFormVisibility();
+};
+
+const handleModalClose = () => {
+  setEditedTask(null);
+  toggleTaskFormVisibility();
+};
+
+const handleEditTask = (task: TaskType) => {
+  setEditedTask(task);
+  toggleTaskFormVisibility();
+};
+
+const handleCompletionChange = (taskId: string, isCompleted: boolean) => {
+  setTasks((prevTasks) =>
+    prevTasks.map((task) =>
+      task.id === taskId ? { ...task, completed: isCompleted } : task,
+    ),
+  );
+};
+
+const toggleTaskFormVisibility = (reset: boolean = false) => {
+  setIsTaskFormModalVisible((prevVisible) => !prevVisible);
+  if (reset) {
+    setEditedTask(null);
+  }
+};
+
+
+const handleListChange = (taskId: string, newList: TaskType['list']) => {
+  setTasks((prevTasks) =>
+    prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
+  );
+};
+
+
+
+const [editedTask, setEditedTask] = useState<TaskType | null>(null);
+
+//Calculate the cumulative total points of tasks in the 'today' list
+const getTotalPoints = () => {
+  return tasks
+    .filter((task) => task.list === 'today')
+    .reduce((total, currentTask) => total + currentTask.sizing, 0);
+};
+
+const getCompletedPoints = () => {
+  return tasks
+    .filter((task) => task.list === 'today' && task.completed)
+    .reduce((total, currentTask) => total + currentTask.sizing, 0);
+};
 
 //Calculate the time until midnight
 const getTimeUntilMidnight = () => {
-const now = new Date();
-const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-return tomorrow.getTime() - now.getTime();
-};
+  const now = new Date();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  return tomorrow.getTime() - now.getTime();
+  };
 
 //Move completed tasks
 const moveCompletedTasks = () => {
@@ -303,51 +356,6 @@ return () => {
 };
 }, [tasks]);
 
-  const theme = createTheme({
-    palette: {
-      text: {
-        primary: '#000000',
-      },
-    },
-    components: {
-      MuiTypography: {
-        styleOverrides: {
-          root: {
-            '&.completed': {
-              color: 'gray',
-            },
-            '&.title.completed': {
-              textDecoration: 'line-through',
-            },
-          },
-        },
-      },
-    },
-  });
-
-  return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <Routes>
-            {user ? (
-              <Route path="/" element={<AppContent />} />
-            ) : (
-              <>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="*" element={<Navigate to="/login" />} />
-              </>
-            )}
-          </Routes>
-        </Router>
-      </ThemeProvider>
-    </AuthProvider>
-  );
-}
-
-function AppContent() {
   return (
     <div>
         <AppBar position="static">
@@ -361,7 +369,7 @@ function AppContent() {
           <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div">
-              To Do
+              Daily Sprint Planner
             </Typography>
           </Toolbar>
         </AppBar>
@@ -494,15 +502,21 @@ function AppContent() {
             </Grid>
           </Stack>
         <Box marginTop={1}>
-          <TaskList
-            tasks={tasks}
-            selectedList={selectedList}
-            onCompletionChange={handleCompletionChange}
-            onListChange={handleListChange}
-            onEditTask={handleEditTask}
-            totalPoints={getTotalPoints(tasks)}
-            velocity={velocity}
-          />
+          {!loading ? (
+            <TaskList
+              tasks={tasks}
+              selectedList={selectedList}
+              onCompletionChange={handleCompletionChange}
+              onListChange={handleListChange}
+              onEditTask={handleEditTask}
+              totalPoints={getTotalPoints(tasks)}
+              velocity={velocity}
+            />
+          ) : (
+            <Typography variant="h6" component="div">
+              Loading tasks...
+            </Typography>
+          )}
         </Box>
         
 

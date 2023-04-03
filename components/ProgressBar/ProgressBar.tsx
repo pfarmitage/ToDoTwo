@@ -15,7 +15,6 @@ const ProgressBar = ({ totalPoints, velocity, completedPoints }) => {
   const remaining = (Math.max(Math.min(totalPoints - completedPoints, velocity - completedPoints), 0) / barLength) * 100;
   const underVelocity = (Math.max(velocity - totalPoints, 0) / barLength) * 100;
   const overVelocity = (Math.max(Math.min(totalPoints - velocity, totalPoints - completedPoints), 0) / barLength) * 100;
-console.log(barLength,completed,remaining,underVelocity,overVelocity)
   return (
     <Box width="100%">
       <Typography gutterBottom>Today's Progress</Typography>

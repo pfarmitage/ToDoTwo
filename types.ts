@@ -10,4 +10,7 @@ export interface TaskType {
   list: 'today' | 'this week' | 'this month' | 'someday';    
   dateId: string | null; // Add this line
   isNewTask?: boolean;
+  userId: string;
+  dateId: string;
+  dateCreated: string | null;
 }

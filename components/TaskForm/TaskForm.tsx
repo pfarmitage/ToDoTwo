@@ -4,6 +4,10 @@ import { Box, Grid, TextField, MenuItem, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { auth } from '../../firebase';
+
 
 interface FormData {
   title: string;
@@ -20,8 +24,27 @@ interface TaskFormProps {
   initialTask?: Task;
 }
 
+const addTaskToFirestore = async (task: TaskType) => {
+  try {
+    const taskRef = doc(db, 'tasks', task.id);
+    await setDoc(taskRef, task);
+    console.log('Task added to Firestore');
+  } catch (error) {
+    console.error('Error adding task to Firestore:', error);
+  }
+};
+
+const updateTaskInFirestore = async (task: TaskType) => {
+  try {
+    const taskRef = doc(db, 'tasks', task.id);
+    await updateDoc(taskRef, task);
+    console.log('Task updated in Firestore');
+  } catch (error) {
+    console.error('Error updating task in Firestore:', error);
+  }
+};
+
 const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, initialTask }) => {
-  console.log(initialTask);
 
   const { handleSubmit, control, reset, setValue } = useForm<FormData>({
     defaultValues: initialTask
@@ -62,7 +85,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
   }, [initialTask, reset, onResetForm]);
   
   const handleFormSubmit = (data: FormData) => {
-    onSubmit({
+    const taskData: TaskType = {
       ...(initialTask || { id: uuidv4() }),
       title: data.title,
       description: data.description,
@@ -72,7 +95,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
       completed: initialTask?.completed || false,
       list: initialTask?.list || 'today',
       isNewTask: !initialTask,
-    });
+      userId: auth.currentUser.uid, 
+    };
+    
+    if (!initialTask) {
+      addTaskToFirestore(taskData);
+    } else {
+      updateTaskInFirestore(taskData);
+    }
+    
+    onSubmit(taskData);
+    
   
     reset();
   };

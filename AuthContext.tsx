@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './firebase';
 
 interface AuthContextData {
-  user: firebase.default.User | null;
+  user: User | null;
   isAuthenticated: boolean;
 }
 
@@ -13,7 +13,7 @@ const AuthContext = createContext<AuthContextData>({
 });
 
 export const AuthProvider: React.FC = ({ children }) => {
-  const [user, setUser] = useState<firebase.default.User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
