@@ -13,18 +13,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import { TaskType } from '../types';
 
-/*interface Task {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string | null;
-  sizing: number;
-  priority: 'normal' | 'high' | 'urgent';
-  completed: boolean;
-  list: 'today' | 'this week' | 'this month' | 'someday';
-  isNewTask?: boolean;
-}*/
-
 interface TaskProps {
   task: TaskType;
   onCompletionChange: (taskId: string, completed: boolean) => void;

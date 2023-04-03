@@ -15,7 +15,7 @@ const DateCard = ({ date, velocity, totalPointsCompleted, tasksCompleted }) => {
   );
 };
 
-const DateList = ({ dateData }) => {
+const DateList = ({ dateData = [] }) => {
   const sortedDateData = dateData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
