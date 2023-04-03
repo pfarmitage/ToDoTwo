@@ -9,7 +9,7 @@ import useFetchTasks from './useFetchTasks';
 
 
 import { useAuth } from './AuthContext';
-import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField} from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField, Tabs} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -481,24 +481,41 @@ return () => {
             )}
             <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
               <AddIcon /> 
+              <Typography>
+              Add Task
+              </Typography>
+            </IconButton>
+            <IconButton onClick={() => {
+                openPlanner(['today', 'this week']);
+                setPlannerTitle('Plan Today');
+              }} color="primary">
+              <AddIcon /> 
+              <Typography>
+              Plan Today
+              </Typography>
             </IconButton>
           </Box>
           <Box marginTop={2}>
             <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints()} velocity={velocity} />
           </Box>
           <Stack marginTop={1} marginBottom={1}>
-            <Grid container spacing={1}>
-              {['today', 'this week', 'this month', 'someday'].map(
-                (list) => (
+          <Grid container spacing={1}>
+              <Tabs
+                value={selectedList}
+                onChange={(event, newValue) => setSelectedList(newValue)}
+                variant="fullWidth"
+                centered
+              >
+                {['today', 'this week', 'this month', 'someday'].map((list) => (
                   <Grid item key={list}>
                     <TaskFilterButton
                       label={list}
                       selected={selectedList === list}
-                      onSelect={(label) => setSelectedList(label as any)}
+                      onSelect={(label) => setSelectedList(label)}
                     />
                   </Grid>
-                ),
-              )}
+                ))}
+              </Tabs>
             </Grid>
           </Stack>
         <Box marginTop={1}>
