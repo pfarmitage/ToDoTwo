@@ -88,7 +88,7 @@ function AppContent() {
   const { tasks, setTasks, loading } = useFetchTasks();
 
     //Set initial dates state
-    const { dateData, setDateData, loadingDates, error } = useFetchTasks();
+    const { dateData, setDateData, loadingDates, error } = useFetchDates();
 
   // Dummy task for testing
   const dummyTask: TaskType = {

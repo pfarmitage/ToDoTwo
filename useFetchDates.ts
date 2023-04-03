@@ -4,7 +4,7 @@ import { db as firestore } from './firebase';
 
 const useFetchDates = (userId: string) => {
   const [dateData, setDateData] = useState<any[]>([]);
-  const [loadingDates, setLoadingDates] = useState(true);
+  const [loadingDates, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDates = async () => {
