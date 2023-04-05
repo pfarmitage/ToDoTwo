@@ -228,9 +228,9 @@ const dummyDateData = [
   //const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
 
   //Set initial selected List state
-  const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' | 'completed' >('today');
+  const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' >('today');
   const [selectedTabIndex, setSelectedTabIndex] = useState(0); // Keep track of the selected tab index
-  const taskLists = ['today', 'this week', 'this month', 'someday', 'completed'];
+  const taskLists = ['today', 'this week', 'this month', 'someday'];
   const currentSelectedList = taskLists[selectedTabIndex]; // Get the selected list using the selected tab index
 
   const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
@@ -241,7 +241,7 @@ const dummyDateData = [
   //Planner
   const [plannerTitle, setPlannerTitle] = useState('');
 
-  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday', 'completed']);
+  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
 
   const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
     setVisibleTaskLists(newTaskLists);
@@ -466,7 +466,17 @@ const dummyDateData = [
                 toggleSidebar();
               }}
             >
-              <ListItemText primary="Plan All" />
+              <ListItemText primary="Plan This Month" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['completed']);
+                setPlannerTitle('View Completed Tasks');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="View Completed" />
             </ListItem>
             <ListItem
               button
@@ -578,7 +588,7 @@ const dummyDateData = [
                 fullwidth="true"
                 centered
               >
-                {['today', 'this week', 'this month', 'someday', 'completed'].map((list, index) => (
+                {['today', 'this week', 'this month', 'someday',].map((list, index) => (
                   <Tab key={list} label={list} value={index} />
                 ))}
               </Tabs>
