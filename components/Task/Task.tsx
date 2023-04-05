@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, Typography, Checkbox, FormControlLabel, Button, Box, Stack,   IconButton, Accordion, AccordionSummary, AccordionDetails,} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -12,6 +12,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import { TaskType } from '../types';
+import RefineTask from '../RefineTask/RefineTask';
 
 interface TaskProps {
   task: TaskType;
@@ -32,6 +33,14 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
   const handleEditButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     onEditTask(task);
+  };
+
+  const [isRefineTaskOpen, setIsRefineTaskOpen] = useState(false);
+
+  const handleRefineTaskSave = (conversation) => {
+    // Update the task with the refined description.
+    // Close the RefineTask component.
+    setIsRefineTaskOpen(false);
   };
 
   return (
@@ -150,6 +159,13 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
               <HelpIcon fontSize="small" />
             </IconButton>
           )}
+          <Button onClick={() => setIsRefineTaskOpen(true)}>Help Refine Task</Button>
+            <RefineTask
+              task={task}
+              isOpen={isRefineTaskOpen}
+              onClose={() => setIsRefineTaskOpen(false)}
+              onSave={handleRefineTaskSave}
+            />
         </Stack>     
       </CardContent>
     </Card>
