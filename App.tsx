@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField} from '@mui/material';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Login from './components/Login/Login';
+import Signup from './components/Signup/Signup';
+import ProtectedRoute from './ProtectedRoute';
+import { auth } from './firebase';
+import { addDoc, collection, doc, getDocs, query, setDoc, where, updateDoc } from 'firebase/firestore';
+import { db as firestore } from './firebase';
+import useFetchTasks from './useFetchTasks';
+import useFetchDates from './useFetchDates';
+
+import { useAuth } from './AuthContext';
+import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField, Tabs, Tab} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -11,54 +22,78 @@ import DateList from './components/DateList/DateList';
 import SettingsDialog from './components/SettingsDialog/SettingsDialog';
 
 import { TaskType } from './types';
-import TaskFilterButton from './components/TaskFilterButton/TaskFilterButton';
 import { ThemeProvider, createTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ProgressBar from './components/ProgressBar/ProgressBar';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
-
+interface AppContentProps {
+  user: firebase.User | null;
+}
 
 function App() {
-  //Settings: Velocity
-  const [velocity, setVelocity] = useState<number>(10);
+  //Authentication
+  const { user } = useAuth();
 
-  // SettingsDialog
-  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleSettingsDialogClose = () => {
-    setSettingsDialogOpen(false);
-  };
+  useEffect(() => {
+    const unregisterAuthObserver = auth.onAuthStateChanged((user) => {
+      setIsAuthenticated(!!user);
+    });
 
-  const handleSettingsDialogSave = (newVelocity: number) => {
-    setVelocity(newVelocity);
-    setSettingsDialogOpen(false);
-  };
-
-  const scheduleDailyUpdate = () => {
-    // Implement the function to schedule a daily update
-  };
-
-  /*useEffect(() => {
-    scheduleDailyUpdate();
+    return () => unregisterAuthObserver();
   }, []);
-  */
-  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
-  const toggleCalendar = () => {
-  setIsCalendarVisible(!isCalendarVisible);
-};
+  const theme = createTheme({
+    palette: {
+      text: {
+        primary: '#000000',
+      },
+    },
+    components: {
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            '&.completed': {
+              color: 'gray',
+            },
+            '&.title.completed': {
+              textDecoration: 'line-through',
+            },
+          },
+        },
+      },
+    },
+  });
 
-const [isDateListDialogOpen, setDateListDialogOpen] = useState(false);
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          <Route path="/" element={user ? <AppContent user={user} /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
+}
 
-const openDateListDialog = () => {
-  setDateListDialogOpen(true);
-};
+const AppContent: React.FC<AppContentProps> = ({ user }) => {
+  //Set User
+  const userId = user ? user.uid : '';
 
-const closeDateListDialog = () => {
-  setDateListDialogOpen(false);
-};
+  //Set initial tasks state
+  const { tasks, setTasks, loading } = useFetchTasks();
+
+    //Set initial dates state
+    const { dateData, setDateData, loadingDates, error } = useFetchDates(userId);
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -115,19 +150,93 @@ const closeDateListDialog = () => {
     list: 'this month',
   };
 
-  //Set initial tasks state
-  const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
+  //Dates and Completed Lists
+const dummyDateData = [
+  {
+    id: 1,
+    date: '2023-03-15',
+    velocity: 100,
+    totalPointsCompleted: 90,
+    tasksCompleted: [
+      { id: 1, title: 'Task 1', points: 40 },
+      { id: 2, title: 'Task 2', points: 50 },
+    ],
+  },
+  {
+    id: 2,
+    date: '2023-03-16',
+    velocity: 120,
+    totalPointsCompleted: 110,
+    tasksCompleted: [
+      { id: 3, title: 'Task 3', points: 60 },
+      { id: 4, title: 'Task 4', points: 50 },
+    ],
+  },
+  {
+    id: 3,
+    date: '2023-03-17',
+    velocity: 80,
+    totalPointsCompleted: 70,
+    tasksCompleted: [
+      { id: 5, title: 'Task 5', points: 30 },
+      { id: 6, title: 'Task 6', points: 40 },
+    ],
+  },
+  // Add more data as needed
+];
 
-  //Set initial selected List state
-  const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' | 'completed' >('today');
+  //Settings: Velocity
+  const [velocity, setVelocity] = useState<number>(10);
 
-  const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
+  // SettingsDialog
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+
+  const handleSettingsDialogClose = () => {
+    setSettingsDialogOpen(false);
+  };
+
+  const handleSettingsDialogSave = (newVelocity: number) => {
+    setVelocity(newVelocity);
+    setSettingsDialogOpen(false);
+  };
 
   //Sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
+  const toggleCalendar = () => {
+  setIsCalendarVisible(!isCalendarVisible);
+  };
+
+  const [isDateListDialogOpen, setDateListDialogOpen] = useState(false);
+
+  const openDateListDialog = () => {
+    setDateListDialogOpen(true);
+  };
+
+  const closeDateListDialog = () => {
+    setDateListDialogOpen(false);
+  };
+
+
+
+  //const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
+
+  //Set initial selected List state
+  const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' >('today');
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0); // Keep track of the selected tab index
+  const taskLists = ['today', 'this week', 'this month', 'someday'];
+  const currentSelectedList = taskLists[selectedTabIndex]; // Get the selected list using the selected tab index
+
+  const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
+
+  //Dummy Dates
+  //const [dateData, setDateData] = useState(dummyDateData);
 
   //Planner
   const [plannerTitle, setPlannerTitle] = useState('');
@@ -144,7 +253,7 @@ const closeDateListDialog = () => {
     setVisibleTaskLists(taskLists);
     setIsPlannerOpen(true);
   };
-  
+
   const closePlanner = () => {
     setIsPlannerOpen(false);
   };
@@ -198,15 +307,12 @@ const closeDateListDialog = () => {
       setEditedTask(null);
     }
   };
-  
 
   const handleListChange = (taskId: string, newList: TaskType['list']) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => (task.id === taskId ? { ...task, list: newList } : task)),
     );
   };
-
-  
 
   const [editedTask, setEditedTask] = useState<TaskType | null>(null);
 
@@ -223,105 +329,85 @@ const closeDateListDialog = () => {
       .reduce((total, currentTask) => total + currentTask.sizing, 0);
   };
 
-//Dates and Completed Lists
-const dummyDateData = [
-  {
-    id: 1,
-    date: '2023-03-15',
-    velocity: 100,
-    totalPointsCompleted: 90,
-    tasksCompleted: [
-      { id: 1, title: 'Task 1', points: 40 },
-      { id: 2, title: 'Task 2', points: 50 },
-    ],
-  },
-  {
-    id: 2,
-    date: '2023-03-16',
-    velocity: 120,
-    totalPointsCompleted: 110,
-    tasksCompleted: [
-      { id: 3, title: 'Task 3', points: 60 },
-      { id: 4, title: 'Task 4', points: 50 },
-    ],
-  },
-  {
-    id: 3,
-    date: '2023-03-17',
-    velocity: 80,
-    totalPointsCompleted: 70,
-    tasksCompleted: [
-      { id: 5, title: 'Task 5', points: 30 },
-      { id: 6, title: 'Task 6', points: 40 },
-    ],
-  },
-  // Add more data as needed
-];
+  //Move tasks to completed list, and create a date record to complete the day
+  const createOrUpdateDateRecord = async (completedTasks: TaskType[]) => {
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0]; 
+    const userUid = auth.currentUser?.uid;
+  
+    if (userUid) {
+      const dateCollection = collection(firestore, 'dates');
+      const q = query(dateCollection, where('date', '==', dateStr), where('userId', '==', userUid));
+      const querySnapshot = await getDocs(q);
+  
+      let dateId;
+      if (querySnapshot.empty) {
+        const newDateDoc = await addDoc(dateCollection, {
+          date: dateStr,
+          userId: userUid,
+          velocity: velocity,
+          actualVelocity: getCompletedPoints(),
+          numberOfCompletedTasks: completedTasks.length,
+          tasksCompleted: completedTasks,
+          
+        });
+        dateId = newDateDoc.id;
+      } else {
+        const existingDateDoc = querySnapshot.docs[0];
+        dateId = existingDateDoc.id;
+        await setDoc(doc(dateCollection, dateId), {
+          velocity: velocity,
+          actualVelocity: getCompletedPoints(),
+          numberOfCompletedTasks: completedTasks.length,
+        }, { merge: true });
+      }
+      return dateId;
+    }
+  };
+  
 
-const [dateData, setDateData] = useState(dummyDateData);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dateRecord, setDateRecord] = useState({ velocity: 0, actualPoints: 0, tasksCompleted: 0 });
 
-//Calculate the time until midnight
-const getTimeUntilMidnight = () => {
-const now = new Date();
-const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-return tomorrow.getTime() - now.getTime();
-};
-
-//Move completed tasks
-const moveCompletedTasks = () => {
-// 1. Filter out completed tasks
-const completedTasks = tasks.filter(task => task.completed);
-
-// 2. Create a Date record if necessary and get its id
-const dateId = createOrUpdateDateRecord(completedTasks);
-
-// 3. Assign the Date record id to the completed tasks
-completedTasks.forEach(task => task.dateId = dateId);
-
-// 4. Update the tasks state
-setTasks([...tasks]);
-};
-
-//Find a date record if it does not already exist
-const createOrUpdateDateRecord = (completedTasks) => {
-// Your implementation here
-};
-
-useEffect(() => {
-const timeUntilMidnight = getTimeUntilMidnight();
-const timer = setTimeout(moveCompletedTasks, timeUntilMidnight);
-
-return () => {
-  clearTimeout(timer);
-};
-}, [tasks]);
-
-  const theme = createTheme({
-    palette: {
-      text: {
-        primary: '#000000',
-      },
-    },
-    components: {
-      MuiTypography: {
-        styleOverrides: {
-          root: {
-            '&.completed': {
-              color: 'gray',
-            },
-            '&.title.completed': {
-              textDecoration: 'line-through',
-            },
-          },
-        },
-      },
-    },
-  });
+  const handleCompleteDay = async () => {
+    // Move completed tasks and create or update the date record
+    const completedTasks = tasks.filter((task) => task.completed);
+    const dateId = await createOrUpdateDateRecord(completedTasks);
+    completedTasks.forEach((task) => (task.dateId = dateId));
+  
+    const updatedTasks = tasks.map((task) => {
+      if (task.completed) {
+        return { ...task, list: 'completed', dateId };
+      }
+      return task;
+    });
+  
+    // Update tasks in Firebase
+    updatedTasks.forEach(async (task) => {
+      if (task.completed) {
+        const taskDoc = doc(firestore, 'tasks', task.id);
+        await updateDoc(taskDoc, {
+          list: 'completed',
+          dateId,
+        });
+      }
+    });
+  
+    // Update the tasks state
+    setTasks(updatedTasks);
+  
+    // Update the date record state
+    const actualPoints = getCompletedPoints();
+    const tasksCompleted = completedTasks.length;
+    setDateRecord({ velocity, actualPoints, tasksCompleted });
+  
+    // Open the dialog
+    setDialogOpen(true);
+  };
+  
 
   return (
-    <ThemeProvider theme={theme}>
-      <div>
-        <CssBaseline />
+    <div>
         <AppBar position="static">
           <Toolbar>
           <IconButton
@@ -333,7 +419,7 @@ return () => {
           <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div">
-              To Do
+              Daily Sprint Planner
             </Typography>
           </Toolbar>
         </AppBar>
@@ -380,7 +466,17 @@ return () => {
                 toggleSidebar();
               }}
             >
-              <ListItemText primary="Plan All" />
+              <ListItemText primary="Plan This Month" />
+            </ListItem>
+            <ListItem
+              button
+              onClick={() => {
+                openPlanner(['completed']);
+                setPlannerTitle('View Completed Tasks');
+                toggleSidebar();
+              }}
+            >
+              <ListItemText primary="View Completed" />
             </ListItem>
             <ListItem
               button
@@ -395,7 +491,9 @@ return () => {
         </Drawer>
         <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
           <DialogTitle>Velocity</DialogTitle>
-          <DateList dateData={dateData} />
+          {loadingDates && <div>Loading...</div>}
+          {error && <div>Error: {error.message}</div>}
+          {!loadingDates && !error && <DateList dateData={dateData} />}
         </Dialog>
         <Dialog open={isPlannerOpen} onClose={closePlanner}>
           <DialogTitle>{plannerTitle}</DialogTitle>
@@ -445,42 +543,79 @@ return () => {
             )}
             <IconButton onClick={() => toggleTaskFormVisibility(true)} color="primary">
               <AddIcon /> 
+              <Typography>
+              Add Task
+              </Typography>
+            </IconButton>
+            <IconButton onClick={() => {
+                openPlanner(['today', 'this week']);
+                setPlannerTitle('Plan Today');
+              }} color="primary">
+              <PlaylistAddIcon /> 
+              <Typography>
+              Plan Today
+              </Typography>
+            </IconButton>
+            <IconButton onClick={handleCompleteDay} color="primary">
+              <CheckCircleOutlineIcon /> 
+              <Typography>
+              Complete Day
+              </Typography>
             </IconButton>
           </Box>
+          <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+            <DialogTitle>Date Record</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Velocity: {dateRecord.velocity}</DialogContentText>
+              <DialogContentText>Actual Points Completed: {dateRecord.actualPoints}</DialogContentText>
+              <DialogContentText>Number of Tasks Completed: {dateRecord.tasksCompleted}</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDialogOpen(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
           <Box marginTop={2}>
             <ProgressBar totalPoints={getTotalPoints()} completedPoints={getCompletedPoints()} velocity={velocity} />
           </Box>
           <Stack marginTop={1} marginBottom={1}>
-            <Grid container spacing={1}>
-              {['today', 'this week', 'this month', 'someday'].map(
-                (list) => (
-                  <Grid item key={list}>
-                    <TaskFilterButton
-                      label={list}
-                      selected={selectedList === list}
-                      onSelect={(label) => setSelectedList(label as any)}
-                    />
-                  </Grid>
-                ),
-              )}
+          <Grid container spacing={1}>
+            <Tabs
+                value={selectedTabIndex}
+                onChange={(event, newValue) => {
+                  setSelectedTabIndex(newValue);
+                  setSelectedList(taskLists[newValue]);
+                }}
+                fullwidth="true"
+                centered
+              >
+                {['today', 'this week', 'this month', 'someday',].map((list, index) => (
+                  <Tab key={list} label={list} value={index} />
+                ))}
+              </Tabs>
             </Grid>
           </Stack>
         <Box marginTop={1}>
-          <TaskList
-            tasks={tasks}
-            selectedList={selectedList}
-            onCompletionChange={handleCompletionChange}
-            onListChange={handleListChange}
-            onEditTask={handleEditTask}
-            totalPoints={getTotalPoints(tasks)}
-            velocity={velocity}
-          />
+          {!loading ? (
+            <TaskList
+              tasks={tasks}
+              selectedList={selectedList}
+              onCompletionChange={handleCompletionChange}
+              onListChange={handleListChange}
+              onEditTask={handleEditTask}
+              handleListChange={handleListChange}
+              totalPoints={getTotalPoints(tasks)}
+              velocity={velocity}
+            />
+          ) : (
+            <Typography variant="h6" component="div">
+              Loading tasks...
+            </Typography>
+          )}
         </Box>
         
 
         </Container>
       </div>
-    </ThemeProvider>
   );
 }
 

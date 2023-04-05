@@ -13,18 +13,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import { TaskType } from '../types';
 
-/*interface Task {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string | null;
-  sizing: number;
-  priority: 'normal' | 'high' | 'urgent';
-  completed: boolean;
-  list: 'today' | 'this week' | 'this month' | 'someday';
-  isNewTask?: boolean;
-}*/
-
 interface TaskProps {
   task: TaskType;
   onCompletionChange: (taskId: string, completed: boolean) => void;
@@ -51,15 +39,11 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
       <CardContent>
         <Stack direction="row">  
         {!hideControls && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={task.completed}
-                onChange={handleCompletionChange}
-              />
-            }
-            label={}
-            />
+          <Checkbox
+          checked={task.completed}
+          onChange={handleCompletionChange}
+          sx={{ marginRight: 1 }}
+          />
           )}
           <Typography
               className={task.completed ? 'completed title' : ''}
