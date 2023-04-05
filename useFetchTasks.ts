@@ -1,38 +1,45 @@
 import { useState, useEffect } from 'react';
 import { TaskType } from './types';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db as firestore } from './firebase';
 
-const useFetchTasks = () => {
+const useFetchTasks = (userId: string) => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    console.log('Firestore instance:', firestore); // Add this line
-    const taskCollection = collection(firestore, 'tasks');
-    console.log('Tasks collection:', taskCollection); // Add this line
-
-    const unsubscribe = onSnapshot(
-      taskCollection,
-      (querySnapshot) => {
-        const fetchedTasks: TaskType[] = [];
-        querySnapshot.forEach((doc) => {
-          fetchedTasks.push({ ...doc.data(), id: doc.id } as TaskType);
-        });
+    const fetchTasks = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const taskCollection = collection(firestore, 'tasks');
+        const q = query(taskCollection, where('userId', '==', userId));
+        const querySnapshot = await getDocs(q);
+  
+        const fetchedTasks = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+  
         setTasks(fetchedTasks);
-        setLoading(false); 
-      },
-      (error) => {
-        console.error('Error fetching tasks:', error);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
       }
-    );
-
-    return () => {
-      unsubscribe();
     };
-  }, []);
+  
+    if (userId) {
+      fetchTasks();
+    } else {
+      setTasks([]);
+      setLoading(false);
+    }
+  }, [userId]);
+  
+  return { tasks, setTasks, loading, error };
 
-  return { tasks, setTasks, loading };
 };
 
 export default useFetchTasks;

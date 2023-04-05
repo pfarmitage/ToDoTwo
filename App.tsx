@@ -90,10 +90,10 @@ const AppContent: React.FC<AppContentProps> = ({ user }) => {
   const userId = user ? user.uid : '';
 
   //Set initial tasks state
-  const { tasks, setTasks, loading } = useFetchTasks();
+  const { tasks, setTasks, loading } = useFetchTasks(userId);
 
-    //Set initial dates state
-    const { dateData, setDateData, loadingDates, error } = useFetchDates(userId);
+  //Set initial dates state
+  const { dateData, setDateData, loadingDates, error } = useFetchDates(userId);
 
   // Dummy task for testing
   const dummyTask: TaskType = {
