@@ -30,6 +30,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ProgressBar from './components/ProgressBar/ProgressBar';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
+interface AppContentProps {
+  user: firebase.User | null;
+}
 
 function App() {
   //Authentication
@@ -72,7 +75,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={user ? <AppContent /> : <Navigate to="/login" />} />
+          <Route path="/" element={user ? <AppContent user={user} /> : <Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" />} />
@@ -82,13 +85,15 @@ function App() {
   );
 }
 
-function AppContent() {
+const AppContent: React.FC<AppContentProps> = ({ user }) => {
+  //Set User
+  const userId = user ? user.uid : '';
 
   //Set initial tasks state
   const { tasks, setTasks, loading } = useFetchTasks();
 
     //Set initial dates state
-    const { dateData, setDateData, loadingDates, error } = useFetchDates();
+    const { dateData, setDateData, loadingDates, error } = useFetchDates(userId);
 
   // Dummy task for testing
   const dummyTask: TaskType = {
@@ -225,7 +230,7 @@ const dummyDateData = [
   //Set initial selected List state
   const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' | 'completed' >('today');
   const [selectedTabIndex, setSelectedTabIndex] = useState(0); // Keep track of the selected tab index
-  const taskLists = ['today', 'this week', 'this month', 'someday'];
+  const taskLists = ['today', 'this week', 'this month', 'someday', 'completed'];
   const currentSelectedList = taskLists[selectedTabIndex]; // Get the selected list using the selected tab index
 
   const [isTaskFormModalOpen, setIsTaskFormModalVisible] = useState<boolean>(false);
@@ -236,7 +241,7 @@ const dummyDateData = [
   //Planner
   const [plannerTitle, setPlannerTitle] = useState('');
 
-  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday']);
+  const [visibleTaskLists, setVisibleTaskLists] = useState<TaskType['list'][]>(['today', 'this week', 'this month', 'someday', 'completed']);
 
   const updateVisibleTaskLists = (newTaskLists: TaskType['list'][]) => {
     setVisibleTaskLists(newTaskLists);
@@ -343,6 +348,8 @@ const dummyDateData = [
           velocity: velocity,
           actualVelocity: getCompletedPoints(),
           numberOfCompletedTasks: completedTasks.length,
+          tasksCompleted: completedTasks,
+          
         });
         dateId = newDateDoc.id;
       } else {
@@ -472,7 +479,7 @@ const dummyDateData = [
             </ListItem>
           </List>
         </Drawer>
-        <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullidth maxWidth="md">
+        <Dialog open={isDateListDialogOpen} onClose={closeDateListDialog} fullWidth maxWidth="md">
           <DialogTitle>Velocity</DialogTitle>
           {loadingDates && <div>Loading...</div>}
           {error && <div>Error: {error.message}</div>}
@@ -571,7 +578,7 @@ const dummyDateData = [
                 fullwidth="true"
                 centered
               >
-                {['today', 'this week', 'this month', 'someday'].map((list, index) => (
+                {['today', 'this week', 'this month', 'someday', 'completed'].map((list, index) => (
                   <Tab key={list} label={list} value={index} />
                 ))}
               </Tabs>

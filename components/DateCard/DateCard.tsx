@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, Typography, Dialog, DialogTitle, DialogContent, List, ListItem } from '@mui/material';
 
-const DateCard = ({ date, velocity, totalPointsCompleted, tasksCompleted }) => {
+const DateCard = ({ date, velocity, actualVelocity, tasksCompleted }) => {
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
@@ -18,7 +18,7 @@ const DateCard = ({ date, velocity, totalPointsCompleted, tasksCompleted }) => {
         <CardContent>
           <Typography>Date: {date}</Typography>
           <Typography>Velocity: {velocity}</Typography>
-          <Typography>Points Completed: {totalPointsCompleted}</Typography>
+          <Typography>Points Completed: {actualVelocity}</Typography>
           <Typography>Tasks Completed: {tasksCompleted.length}</Typography>
         </CardContent>
       </Card>

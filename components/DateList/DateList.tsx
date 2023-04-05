@@ -2,13 +2,13 @@ import React from 'react';
 import { Box, Typography, Card, CardContent } from '@mui/material';
 import VelocityChart from '../VelocityChart/VelocityChart';
 
-const DateCard = ({ date, velocity, totalPointsCompleted, tasksCompleted }) => {
+const DateCard = ({ date, velocity, actualVelocity, tasksCompleted }) => {
   return (
     <Card>
       <CardContent>
         <Typography>Date: {date}</Typography>
         <Typography>Velocity: {velocity}</Typography>
-        <Typography>Total Points Completed: {totalPointsCompleted}</Typography>
+        <Typography>Total Points Completed: {actualVelocity}</Typography>
         <Typography>Tasks Completed: {tasksCompleted.length}</Typography>
       </CardContent>
     </Card>

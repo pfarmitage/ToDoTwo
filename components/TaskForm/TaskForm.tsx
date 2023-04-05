@@ -58,7 +58,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
       : {
           title: '',
           description: '',
-          dueDate: null,
+          dueDate: '',
           sizing: 1,
           priority: 'normal',
         },
@@ -77,7 +77,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
       reset({
         title: '',
         description: '',
-        dueDate: null,
+        dueDate: '',
         sizing: 1,
         priority: 'normal',
       });
