@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import Login from './components/Login/Login';
 import Signup from './components/Signup/Signup';
 import ProtectedRoute from './ProtectedRoute';
 import { auth } from './firebase';
-import { addDoc, collection, doc, getDocs, query, setDoc, where, updateDoc, getAuth, signOut } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, setDoc, where, updateDoc } from 'firebase/firestore';
+import { getAuth, signOut } from 'firebase/auth';
 import { db as firestore } from './firebase';
 import useFetchTasks from './useFetchTasks';
 import useFetchDates from './useFetchDates';
@@ -207,13 +208,13 @@ const dummyDateData = [
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const auth = getAuth();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      history.push('/login');
+      navigate.push('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }
