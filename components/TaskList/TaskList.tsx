@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { List,} from '@mui/material';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -71,7 +72,7 @@ const TaskList: React.FC<TaskListProps> = ({
   };
 
   return (
-    <div>
+    <List>
       {sortedTasks.map((task) => (
         <Task
           key={task.id}
@@ -82,7 +83,7 @@ const TaskList: React.FC<TaskListProps> = ({
           hideControls={hideControls}
         />
       ))}
-    </div>
+    </List>
   );
 };
 

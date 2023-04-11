@@ -1,5 +1,13 @@
 import React from 'react';
-import { Card, CardContent, Typography, Checkbox, FormControlLabel, Button, Box, Stack,   IconButton, Accordion, AccordionSummary, AccordionDetails,} from '@mui/material';
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  ListItem,
+  Typography,
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
@@ -11,79 +19,43 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
-import { TaskType } from '../types';
 
-interface TaskProps {
-  task: TaskType;
-  onCompletionChange: (taskId: string, completed: boolean) => void;
-  onListChange: (taskId: string, newList: Task['list']) => void;
-  onEditTask: (task: TaskType) => void;
-  totalPoints: number;
-  velocity: number;
-  hideControls?: boolean;
-}
-
-const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, totalPoints, velocity,   hideControls = false,
-}) => {
-  const handleCompletionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+const Task = ({ task, onCompletionChange, onEditTask = () => {}, hideControls = false }) => {
+  const handleCompletionChange = (event) => {
     onCompletionChange(task.id, event.target.checked);
   };
 
-  const handleEditButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEditButtonClick = (event) => {
     event.stopPropagation();
     onEditTask(task);
   };
 
   return (
-    <Card>
-      <CardContent>
-        <Stack direction="row">  
-        {!hideControls && (
-          <Checkbox
-          checked={task.completed}
-          onChange={handleCompletionChange}
-          sx={{ marginRight: 1 }}
-          />
-          )}
-          <Typography
-              className={task.completed ? 'completed title' : ''}
-              onClick={handleEditButtonClick}
-              style={{cursor:'pointer'}}
-              title="Click to View/Edit"
-            >
-              {task.title}
-              {!hideControls && (
-                <IconButton
-                  size="small"
-                >            
-                <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-          </Typography>  
-          <Typography
-            style={{cursor:'pointer'}}
-            title="Missing Description and Date"
-            onClick={handleEditButtonClick}
-          >
-              {(!task.dueDate && !task.description) && (
-                <>
-                  <Flag fontSize="small" color="error" />
-                </>
-              )}
-          </Typography>
-          <Typography
-            style={{cursor:'pointer'}}
-            title="Missing Description"
-            onClick={handleEditButtonClick}
-          >
-              {(!task.description && task.dueDate) && (
-                <>
-                  <Flag fontSize="small" color="warning" />
-                </>
-              )}
-          </Typography>    
-        </Stack>
-        <Stack direction="row" spacing={1} sx={{ margin: 0 }} >
+    <ListItem>
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          transition: 'background-color 0.3s',
+          borderRadius: 1,
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.03)',
+          },
+        }}
+      >
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item>
+            {!hideControls && (
+              <Checkbox
+                checked={task.completed}
+                onChange={handleCompletionChange}
+                sx={{ marginRight: 1 }}
+              />
+            )}
+          </Grid>
+          <Grid item xs>
           {task.priority == 'normal' && (
             <IconButton
               size="small"
@@ -108,51 +80,21 @@ const Task: React.FC<TaskProps> = ({ task, onCompletionChange, onListChange, onE
               <KeyboardDoubleArrowUpIcon fontSize="small" />
             </IconButton>
           )}
-          <Typography
-              className={task.completed ? 'completed' : ''}
-              title="Sizing"
+            <Typography
+              className={task.completed ? 'completed title' : ''}
+              onClick={handleEditButtonClick}
+              style={{ cursor: 'pointer' }}
+              title="Click to View/Edit"
+              variant="body1"
+              component="span"
+              noWrap
             >
-              {task.sizing}
-          </Typography>  
-          {task.list !== 'today' && (
-            <IconButton
-              size="small"
-              title="Today"
-              onClick={() => onListChange(task.id, 'today')}
-            >
-              <CircleIcon fontSize="small" />
-            </IconButton>
-          )}
-          {task.list !== 'this week' && (
-            <IconButton
-              size="small"
-              title="This Week"
-              onClick={() => onListChange(task.id, 'this week')}
-            >
-              <ArrowCircleRightIcon fontSize="small" />
-            </IconButton>
-          )}
-          {task.list !== 'this month' && (
-            <IconButton
-              size="small"
-              title="This Month"
-              onClick={() => onListChange(task.id, 'this month')}
-            >
-              <NextPlanIcon fontSize="small" />
-            </IconButton>
-          )}
-          {task.list !== 'someday' && (
-            <IconButton
-              size="small"
-              title="Someday"
-              onClick={() => onListChange(task.id, 'someday')}
-            >
-              <HelpIcon fontSize="small" />
-            </IconButton>
-          )}
-        </Stack>     
-      </CardContent>
-    </Card>
+              {task.title} ({task.sizing})
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
+    </ListItem>
   );
 };
 
