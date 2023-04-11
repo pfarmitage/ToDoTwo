@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { List,} from '@mui/material';
+import { List, TextField} from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import InputAdornment from '@mui/material/InputAdornment';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -7,6 +9,8 @@ import { auth } from '../../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db as firestore } from '../../firebase';
+import { v4 as uuidv4 } from 'uuid';
+
 
 interface TaskListProps {
   tasks: TaskType[];
@@ -14,9 +18,10 @@ interface TaskListProps {
   onCompletionChange: (taskId: string, completed: boolean) => void;
   //handleListChange: (taskId: string, newList: TaskType['list']) => void;
   onEditTask: (task: TaskType) => void;
-  totalPoints: number;
-  velocity: number;
+  handleAddTask: (title: string) => void;
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>; 
   hideControls?: boolean;
+  onMoveTask: (taskId: string, newList: TaskType['list']) => void; 
 }
 
 const updateTaskInFirestore = async (taskId: string, updateData: Partial<TaskType>) => {
@@ -34,7 +39,7 @@ const TaskList: React.FC<TaskListProps> = ({
   tasks,
   selectedList,
   onCompletionChange,
-  //handleListChange, 
+  handleAddTask, 
   onEditTask,
   hideControls = false,
 }) => {
@@ -71,6 +76,23 @@ const TaskList: React.FC<TaskListProps> = ({
     //handleListChange(taskId, newList);
   };
 
+  // New task title state
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+
+  const handleNewTaskTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTaskTitle(event.target.value);
+  };
+
+  const handleNewTaskSubmit = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && newTaskTitle.trim()) {
+      // Call the handleAddTask function passed as a prop
+      handleAddTask(newTaskTitle.trim());
+  
+      // Clear the input field
+      setNewTaskTitle('');
+    }
+  };
+
   return (
     <List>
       {sortedTasks.map((task) => (
@@ -83,6 +105,20 @@ const TaskList: React.FC<TaskListProps> = ({
           hideControls={hideControls}
         />
       ))}
+      <TextField
+        value={newTaskTitle}
+        onChange={handleNewTaskTitleChange}
+        onKeyDown={handleNewTaskSubmit}
+        placeholder="What do you want to do?"
+        fullWidth
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <AddCircleOutlineIcon />
+            </InputAdornment>
+          ),
+        }}
+      />
     </List>
   );
 };

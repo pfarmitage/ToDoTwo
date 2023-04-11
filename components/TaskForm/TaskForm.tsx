@@ -8,7 +8,6 @@ import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { auth } from '../../firebase';
 
-
 interface FormData {
   title: string;
   description: string;
@@ -24,7 +23,7 @@ interface TaskFormProps {
   initialTask?: Task;
 }
 
-const addTaskToFirestore = async (task: TaskType) => {
+export const addTaskToFirestore = async (task: TaskType) => {
   try {
     const taskRef = doc(db, 'tasks', task.id);
     await setDoc(taskRef, task);
@@ -44,8 +43,12 @@ const updateTaskInFirestore = async (task: TaskType) => {
   }
 };
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, initialTask }) => {
-
+const TaskForm: React.FC<TaskFormProps> = ({
+  onSubmit,
+  onCancel,
+  onResetForm,
+  initialTask,
+}) => {
   const { handleSubmit, control, reset, setValue } = useForm<FormData>({
     defaultValues: initialTask
       ? {
@@ -83,7 +86,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
       });
     }
   }, [initialTask, reset, onResetForm]);
-  
+
   const handleFormSubmit = (data: FormData) => {
     const taskData: TaskType = {
       ...(initialTask || { id: uuidv4() }),
@@ -95,18 +98,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
       completed: initialTask?.completed || false,
       list: initialTask?.list || 'today',
       isNewTask: !initialTask,
-      userId: auth.currentUser.uid, 
+      userId: auth.currentUser.uid,
     };
-    
+
     if (!initialTask) {
       addTaskToFirestore(taskData);
     } else {
       updateTaskInFirestore(taskData);
     }
-    
+
     onSubmit(taskData);
-    
-  
+
     reset();
   };
 
@@ -121,7 +123,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
   };
 
   return (
-     <form onSubmit={handleSubmit(handleFormSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Controller
@@ -129,7 +131,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextField {...field} label="Title" variant="outlined" fullWidth required />
+              <TextField
+                {...field}
+                label="Title"
+                variant="outlined"
+                fullWidth
+                required
+              />
             )}
           />
         </Grid>
@@ -139,7 +147,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextField {...field} label="Description" variant="outlined" fullWidth multiline rows={4} />
+              <TextField
+                {...field}
+                label="Description"
+                variant="outlined"
+                fullWidth
+                multiline
+                rows={4}
+              />
             )}
           />
         </Grid>
@@ -168,8 +183,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
             control={control}
             defaultValue={1}
             render={({ field }) => (
-              <TextField {...field} select label="Sizing" variant="outlined" fullWidth required>
-                {[1, 2, 3, 5, 8, 13, 21].map(value => (
+              <TextField
+                {...field}
+                select
+                label="Sizing"
+                variant="outlined"
+                fullWidth
+                required
+              >
+                {[1, 2, 3, 5, 8, 13, 21].map((value) => (
                   <MenuItem key={value} value={value}>
                     {value}
                   </MenuItem>
@@ -184,8 +206,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel, onResetForm, in
             control={control}
             defaultValue="normal"
             render={({ field }) => (
-              <TextField {...field} select label="Priority" variant="outlined" fullWidth required>
-                {['normal', 'high', 'urgent'].map(value => (
+              <TextField
+                {...field}
+                select
+                label="Priority"
+                variant="outlined"
+                fullWidth
+                required
+              >
+                {['normal', 'high', 'urgent'].map((value) => (
                   <MenuItem key={value} value={value}>
                     {value}
                   </MenuItem>
