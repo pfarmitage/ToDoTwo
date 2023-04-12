@@ -20,14 +20,14 @@ interface TaskProps {
   task: TaskType;
   onCompletionChange: (taskId: string, completed: boolean) => void;
   onListChange: (taskId: string, newList: Task['list']) => void;
+  handleListChange: (taskId: string, newList: Task['list']) => void;
   onEditTask: (task: TaskType) => void;
-  onMoveTask: (taskId: string, newList: TaskType['list']) => void; // Update this line
   totalPoints: number;
   velocity: number;
   hideControls?: boolean;
 }
 
-const Task = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, hideControls = false }) => {
+const Task = ({ task, onCompletionChange, onListChange, onEditTask  = () => {}, hideControls = false }) => {
   const handleCompletionChange = (event) => {
     onCompletionChange(task.id, event.target.checked);
   };
@@ -47,7 +47,7 @@ const Task = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, h
     setAnchorEl(null);
   };
 
-  const handleMoveTask = (newList: TaskType['list']) => {
+  const handleMoveTask = async (newList: TaskType['list']) => {
     // Call the function passed down as a prop to update the task in Firestore and the state
     onListChange(task.id, newList);
   
@@ -93,13 +93,12 @@ const Task = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, h
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              
-              {task.list !== 'today' && (
+            {task.list !== 'today' && (
             <IconButton
               size="small"
               title="Today"
-              onClick={() => handleMoveTask( 'today')}
-            >
+              onClick={() => { onListChange(task.id, 'today'); handleClose(); }}
+              >
               <CircleIcon fontSize="small" />
             </IconButton>
             )}
@@ -107,8 +106,8 @@ const Task = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, h
               <MenuItem
                 size="small"
                 title="This Week"
-                onClick={() => handleMoveTask('this week')}
-              >
+                onClick={() => { onListChange(task.id, 'this week'); handleClose(); }}
+                >
                 <ArrowCircleRightIcon fontSize="small" />
               </MenuItem>
             )}
@@ -116,8 +115,8 @@ const Task = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, h
               <MenuItem
                 size="small"
                 title="This Month"
-                onClick={() => handleMoveTask('this month')}
-              >
+                onClick={() => { onListChange(task.id, 'this month'); handleClose(); }}
+                >
                 <NextPlanIcon fontSize="small" />
               </MenuItem>
             )}
@@ -125,8 +124,8 @@ const Task = ({ task, onCompletionChange, onListChange, onEditTask = () => {}, h
               <MenuItem
                 size="small"
                 title="Someday"
-                onClick={() => handleMoveTask('someday')}
-              >
+                onClick={() => { onListChange(task.id, 'someday'); handleClose(); }}
+                >
                 <HelpIcon fontSize="small" />
               </MenuItem>
             )}

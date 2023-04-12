@@ -16,12 +16,12 @@ interface TaskListProps {
   tasks: TaskType[];
   selectedList: TaskType['list'];
   onCompletionChange: (taskId: string, completed: boolean) => void;
-  //handleListChange: (taskId: string, newList: TaskType['list']) => void;
+  onMoveTask: (taskId: string, newList: TaskType['list']) => void;
   onEditTask: (task: TaskType) => void;
   handleAddTask: (title: string) => void;
+  onListChange: (taskId: string, newList: TaskType['list']) => void;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>; 
   hideControls?: boolean;
-  onMoveTask: (taskId: string, newList: TaskType['list']) => void; 
 }
 
 const updateTaskInFirestore = async (taskId: string, updateData: Partial<TaskType>) => {
@@ -41,6 +41,7 @@ const TaskList: React.FC<TaskListProps> = ({
   onCompletionChange,
   handleAddTask, 
   onEditTask,
+  onListChange,
   hideControls = false,
 }) => {
   const filteredTasks = tasks.filter((task) => task.list === selectedList);
@@ -74,6 +75,7 @@ const TaskList: React.FC<TaskListProps> = ({
   const handleListChangeInternal = async (taskId: string, newList: TaskType['list']) => {
     await updateTaskInFirestore(taskId, { list: newList });
     //handleListChange(taskId, newList);
+    onListChange(taskId, newList);
   };
 
   // New task title state
@@ -100,6 +102,7 @@ const TaskList: React.FC<TaskListProps> = ({
           key={task.id}
           task={task}
           onCompletionChange={onCompletionChange}
+          //handleListChange={handleListChangeInternal}
           onListChange={handleListChangeInternal}
           onEditTask={onEditTask}
           hideControls={hideControls}

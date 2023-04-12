@@ -552,7 +552,6 @@ const AppContent: React.FC<AppContentProps> = ({ user }) => {
               onEditTask={handleEditTask}
               handleAddTask={handleAddTask}
               setTasks={setTasks}
-              handleListChange={handleListChange}
             />
           ) : (
             <Typography variant="h6" component="div">
