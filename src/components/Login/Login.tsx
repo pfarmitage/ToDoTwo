@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { auth } from '../utils/firebase';
 import { TextField, Button, Typography, Box, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 

@@ -5,7 +5,7 @@ import Signup from './components/Signup/Signup';
 import { addTaskToFirestore } from './components/TaskForm/TaskForm';
 
 import ProtectedRoute from './ProtectedRoute';
-import { auth } from './firebase';
+import { auth } from './utils/firebase';
 import { addDoc, collection, doc, getDocs, query, setDoc, where, updateDoc } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 import { db as firestore } from './utils/firebase';

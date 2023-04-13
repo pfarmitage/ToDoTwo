@@ -5,10 +5,10 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../firebase';
+import { auth } from '../utils/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { doc, updateDoc } from 'firebase/firestore';
-import { db as firestore } from '../../firebase';
+import { db as firestore } from '../utils/firebase';
 import { v4 as uuidv4 } from 'uuid';
 
 
