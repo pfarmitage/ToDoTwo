@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import Login from './components/Login/Login';
 import Signup from './components/Signup/Signup';
+import { addTaskToFirestore } from './components/TaskForm/TaskForm';
+
 import ProtectedRoute from './ProtectedRoute';
 import { auth } from './firebase';
 import { addDoc, collection, doc, getDocs, query, setDoc, where, updateDoc } from 'firebase/firestore';
@@ -96,96 +98,6 @@ const AppContent: React.FC<AppContentProps> = ({ user }) => {
   //Set initial dates state
   const { dateData, setDateData, loadingDates, error } = useFetchDates(userId);
 
-  // Dummy task for testing
-  const dummyTask: TaskType = {
-    id: '1',
-    title: 'Test Task',
-    description: 'This is a test task',
-    dueDate: '2023-03-30',
-    sizing: 8,
-    priority: 'normal',
-    completed: false,
-    list: 'today',
-  };
-  const dummyTask2: TaskType = {
-    id: '2',
-    title: 'Test Task 2',
-    description: 'This is a test task with high priority',
-    dueDate: '2023-03-25',
-    sizing: 5,
-    priority: 'high',
-    completed: false,
-    list: 'today',
-  };
-  
-  const dummyTask3: TaskType = {
-    id: '3',
-    title: 'Test Task 3',
-    description: 'This is a test task with urgent priority',
-    dueDate: '2023-03-24',
-    sizing: 3,
-    priority: 'urgent',
-    completed: false,
-    list: 'someday',
-  };
-
-  const dummyTask4: TaskType = {
-    id: '4',
-    title: 'Future Task',
-    description: 'This is a test task with normal priority',
-    dueDate: '2024-03-24',
-    sizing: 5,
-    priority: 'normal',
-    completed: false,
-    list: 'this week',
-  };
-
-  const dummyTask5: TaskType = {
-    id: '5',
-    title: 'Past Task',
-    description: 'This is a test task with normal priority',
-    dueDate: '2022-03-24',
-    sizing: 3,
-    priority: 'normal',
-    completed: false,
-    list: 'this month',
-  };
-
-  //Dates and Completed Lists
-const dummyDateData = [
-  {
-    id: 1,
-    date: '2023-03-15',
-    velocity: 100,
-    totalPointsCompleted: 90,
-    tasksCompleted: [
-      { id: 1, title: 'Task 1', points: 40 },
-      { id: 2, title: 'Task 2', points: 50 },
-    ],
-  },
-  {
-    id: 2,
-    date: '2023-03-16',
-    velocity: 120,
-    totalPointsCompleted: 110,
-    tasksCompleted: [
-      { id: 3, title: 'Task 3', points: 60 },
-      { id: 4, title: 'Task 4', points: 50 },
-    ],
-  },
-  {
-    id: 3,
-    date: '2023-03-17',
-    velocity: 80,
-    totalPointsCompleted: 70,
-    tasksCompleted: [
-      { id: 5, title: 'Task 5', points: 30 },
-      { id: 6, title: 'Task 6', points: 40 },
-    ],
-  },
-  // Add more data as needed
-];
-
   //Settings: Velocity
   const [velocity, setVelocity] = useState<number>(10);
 
@@ -235,10 +147,6 @@ const dummyDateData = [
   const closeDateListDialog = () => {
     setDateListDialogOpen(false);
   };
-
-
-
-  //const [tasks, setTasks] = useState<TaskType[]>([dummyTask, dummyTask2, dummyTask3, dummyTask4, dummyTask5]);
 
   //Set initial selected List state
   const [selectedList, setSelectedList] = useState<'today' | 'this week' | 'this month' | 'someday' >('today');
@@ -319,6 +227,24 @@ const dummyDateData = [
     if (reset) {
       setEditedTask(null);
     }
+  };
+
+  //Handle tasks added through the task list component
+  const handleAddTask = async (title: string) => {
+    const newTask = {
+      id: uuidv4(),
+      title: title,
+      description: '',
+      dueDate: '',
+      sizing: 1,
+      priority: 'normal',
+      completed: false,
+      list: currentSelectedList, 
+      userId: auth.currentUser.uid,
+    };
+  
+    await addTaskToFirestore(newTask);
+    setTasks((prevTasks) => [...prevTasks, newTask]);
   };
 
   const handleListChange = (taskId: string, newList: TaskType['list']) => {
@@ -624,9 +550,8 @@ const dummyDateData = [
               onCompletionChange={handleCompletionChange}
               onListChange={handleListChange}
               onEditTask={handleEditTask}
-              handleListChange={handleListChange}
-              totalPoints={getTotalPoints(tasks)}
-              velocity={velocity}
+              handleAddTask={handleAddTask}
+              setTasks={setTasks}
             />
           ) : (
             <Typography variant="h6" component="div">
