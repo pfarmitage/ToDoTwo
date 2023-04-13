@@ -90,17 +90,18 @@ const Task = ({ task, onCompletionChange, onListChange, onEditTask  = () => {}, 
             </IconButton>
             <Menu
               anchorEl={anchorEl}
+              title="Move Task"
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
             {task.list !== 'today' && (
-            <IconButton
+            <MenuItem
               size="small"
               title="Today"
               onClick={() => { onListChange(task.id, 'today'); handleClose(); }}
               >
               <CircleIcon fontSize="small" />
-            </IconButton>
+            </MenuItem>
             )}
             {task.list !== 'this week' && (
               <MenuItem
