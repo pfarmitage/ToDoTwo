@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import TaskList from '../TaskList/TaskList';
 import { TaskType } from '../types';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../utils/firebase';
+import { auth } from '../../utils/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db as firestore } from '../utils/firebase';
+import { db as firestore } from '../../utils/firebase';
 
 interface PlannerProps {
   onListChange: (taskId: string, newList: TaskType['list']) => void;
