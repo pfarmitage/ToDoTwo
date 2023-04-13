@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { TaskType } from '../../types';
 import Task from '../Task/Task';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { auth } from '../../firebase';
+import { db } from '../../utils/firebase';
+import { auth } from '../../utils/firebase';
 
 interface FormData {
   title: string;

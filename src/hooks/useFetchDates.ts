@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db as firestore } from './firebase';
+import { db as firestore } from '../utils/firebase';
 
 const useFetchDates = (userId: string) => {
   const [dateData, setDateData] = useState<any[]>([]);

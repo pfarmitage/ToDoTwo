@@ -5,14 +5,14 @@ import Signup from './components/Signup/Signup';
 import { addTaskToFirestore } from './components/TaskForm/TaskForm';
 
 import ProtectedRoute from './ProtectedRoute';
-import { auth } from './firebase';
+import { auth } from './utils/firebase';
 import { addDoc, collection, doc, getDocs, query, setDoc, where, updateDoc } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
-import { db as firestore } from './firebase';
-import useFetchTasks from './useFetchTasks';
-import useFetchDates from './useFetchDates';
+import { db as firestore } from './utils/firebase';
+import useFetchTasks from './hooks/useFetchTasks';
+import useFetchDates from './hooks/useFetchDates';
 
-import { useAuth } from './AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import { Container, AppBar, Toolbar, Typography, Box, Grid, IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, Button, Drawer, List, ListItem, ListItemText, CssBaseline, TextField, Tabs, Tab} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 

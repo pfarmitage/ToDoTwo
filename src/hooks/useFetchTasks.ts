@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TaskType } from './types';
 import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
-import { db as firestore } from './firebase';
+import { db as firestore } from '../utils/firebase';
 
 const useFetchTasks = (userId: string) => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
