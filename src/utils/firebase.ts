@@ -6,7 +6,7 @@ import 'firebase/auth';
 
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDFs_gLlo1jQADPXGfUczKg_0IL4OHKbPs',
+  apiKey: 'REACT-APP-FIREBASE-API-KEY',
   authDomain: 'somedayapp-bbca1.firebaseapp.com',
   projectId: 'somedayapp-bbca1',
   storageBucket: 'somedayapp-bbca1.appspot.com',
